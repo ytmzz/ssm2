@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="/tm_system/css/main.css">-->
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+        table tbody tr:nth-child(odd){background:#F4F4F4;}
+        /*table tbody td:nth-child(even){color:#C00;}*/
+    </style>
+    <title>user</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="glyphicon glyphicon-th"></i> 数据列表</h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-inline" role="form" style="float:left;" id="conditionUserForm">
+                        <div class="form-group has-feedback">
+                            <div class="input-group">
+                                <div class="input-group-addon">查询条件</div>
+                                <!-- 可扩展 -->
+                                <input class="form-control has-success" type="text" name="conditionUserName" placeholder="请输入查询条件">
+                            </div>
+                        </div>
+                        <select class="form-control" name="conditionUserStatus">
+                            <option selected>启用</option>
+                            <option>禁用</option>
+                        </select>
+                        <button type="button" class="btn btn-warning" id="searchBtn"><i class="glyphicon glyphicon-search"></i> 查询</button>
+                    </form>
+<!--                    <button type="button" class="btn btn-danger" id="btnDel" style="float:right;margin-left:10px;"><i class=" glyphicon glyphicon-remove"></i> 删除</button>-->
+                    <button type="button" class="btn btn-primary" style="float:right;" onclick="window.location.href='/tm_system/user/jumpAddPage'"><i class="glyphicon glyphicon-plus"></i> 新增</button>
+                    <br>
+                    <hr style="clear:both;">
+                    <div class="table-responsive">
+                        <form id="listForm">
+                            <table class="table  table-bordered">
+                                <thead>
+                                    <tr >
+                                        <th width="30">#</th>
+<!--                                    <th width="30"><input type="checkbox" id="selectCheckBox"></th>-->
+                                        <th>账号</th>
+                                        <th>状态</th>
+                                        <th width="100">启用/禁用</th>
+                                        <th width="200">初始化密码</th>
+                                        <th width="100">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userList">
+
+                                </tbody>
+                                <tfoot>
+                                    <tr >
+                                        <td colspan="6" align="center">
+                                            <ul class="pagination">
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+<!--                          <input type="hidden" id="currentPage" />-->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script src="/tm_system/layer/layer.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        // 首次调用，显示第1页
+        showUserList(1);
+        // $("#btnDel").click(function(){
+        //     deleteUsers();
+        // });
+
+        $("#searchBtn").click(function(){
+            showUserList(1);
+        });
+    });
+
+
+    function showUserList(currentPage) {
+        var condition = $("#conditionUserForm").serialize();
+        $.ajax({
+            url:"/tm_system/user/getUserList",
+            type:"get",
+            // 可以扩充
+            data:$.param({"currentPage":currentPage}) + '&' + condition,
+            dataType:"json",
+            success:function(data) {
+                var list = "";
+                $.each(data.users, function(index, user){
+                    list += "<tr>";
+                    list += "<td>" + (index + 1) + "</td>";
+                    //list += "<td><input type=\"checkbox\" name='uids' value='" + user.uid + "'></td>";
+                    list += "<input type=\"hidden\" name='uesrIds' value='" + user.userId + "'/>";
+                    list += "<td>" + user.userName + "</td>";
+                    list += "<td>" + user.userStatus + "</td>";
+                    if(user.userStatus == "启用") {
+                        list += "<td><button type=\"button\" name='stopUser' class=\"btn btn-danger btn-sm\">禁用</button></td>";
+                    } else {
+                        list += "<td><button type=\"button\" name='startUser' class=\"btn btn-success btn-sm\">启用</button></td>";
+                    }
+                    list += "<td><button type=\"button\" name='setPasswordDefault' class=\"btn btn-success btn-sm\">初始化密码</button></td>";
+                    list += "<td>";
+                    list += "<button type=\"button\" name='assignRole' class=\"btn btn-success btn-xs\"><i class=\" glyphicon glyphicon-check\"></i></button>";
+                    list += "<button type=\"button\" name='edit' class=\"btn btn-primary btn-xs\"><i class=\" glyphicon glyphicon-pencil\"></i></button>";
+                    //list += "<button type=\"button\" class=\"btn btn-danger btn-xs\"><i class=\" glyphicon glyphicon-remove\" onclick='deleteUserById(" + user.uid + ")'></i></button>";
+                    list += "</td>";
+                    list += "</tr>";
+                });
+                $("#userList").html(list);
+
+                // $("#selectCheckBox").click(function () {
+                //     var isCkecked = $(this).prop("checked");
+                //     var allCheck = $("#userList input[name=uids]");
+                //     for(var i = 0; i < allCheck.length; i++) {
+                //         allCheck.eq(i).prop("checked", isCkecked);
+                //     }
+                // });
+
+                $("tbody button[name=assignRole]").click(function(){
+                    var userId = $(this).parents("tr").find("input[type=hidden]").val();
+                    window.location.href = "/tm_system/user/jumpAssignRolePage?userId=" + userId;
+                });
+                $("tbody button[name=edit]").click(function(){
+                    var userId = $(this).parents("tr").find("input[type=hidden]").val();
+                    //alert(uid);
+                    window.location.href = "/tm_system/user/jumpEditPage?userId=" + userId;
+                });
+
+                $("tbody button[name=startUser]").click(function(){
+                    var userId = $(this).parents("tr").find("input[type=hidden]").val();
+                    //alert(uid);
+                    changeUserStatus(userId, '启用');
+                });
+
+                $("tbody button[name=stopUser]").click(function(){
+                    var userId = $(this).parents("tr").find("input[type=hidden]").val();
+                    //alert(uid);
+                    changeUserStatus(userId, '禁用');
+                });
+
+                $("tbody button[name=setPasswordDefault]").click(function(){
+                    var userId = $(this).parents("tr").find("input[type=hidden]").val();
+                    //alert(uid);
+                    setPasswordDefault(userId);
+                });
+
+                showPageList(data.pageBean);
+            }
+        });
+    }
+
+    function setPasswordDefault(userId) {
+        $.ajax({
+            url:"/tm_system/user/setPasswordDefault",
+            data:{"userId":userId},
+            type:"post",
+            success:function(result) {
+                if(result) {
+                    layer.msg("修改成功", {time:500, icon:6}, showUserList(1));
+                } else {
+                    layer.msg("修改失败", {time:500, icon:5}, showUserList(1));
+                }
+            }
+        });
+    }
+
+
+
+    function changeUserStatus(userId, userStatus) {
+        $.ajax({
+            url:"/tm_system/user/changeUserStatus",
+            data:{"userId":userId, "userStatus":userStatus},
+            type:"post",
+            success:function(result) {
+                if(result) {
+                    layer.msg("修改成功", {time:500, icon:6}, showUserList(1));
+                } else {
+                    layer.msg("修改失败", {time:500, icon:5}, showUserList(1));
+                }
+            }
+        });
+    }
+
+    // function deleteUsers() {
+    //     deleteUser($("#listForm").serialize());
+    // }
+    //
+    // function deleteUserById(uid){
+    //     deleteUser("uids="+uid);
+    // }
+
+    // function deleteUser(uids) {
+    //     var flag = confirm("是否确认删除");
+    //     if(flag) {
+    //         $.ajax({
+    //             url: "/tm_system/user/deleteUser",
+    //             type: "post",
+    //             data: uids,
+    //             dataType: "json",
+    //             success: function (data) {
+    //                 if(data.result) {
+    //                     alert("删除成功");
+    //                     location.href = "/tm_system/main/jumpUserPage"
+    //                 } else {
+    //                     alert("删除失败");
+    //                 }
+    //             }
+    //         });
+    //     }
+    // }
+
+    function showPageList(pageBean) {
+        var pages = pageBean.pages;
+        var currentPage = pageBean.currentPage;
+        var count = pageBean.count;
+        var pageList = "";
+        pageList += "<li " + (currentPage-1 <= 0 ? "class='disabled'" : "") + "><a onclick='showUserList(" + (currentPage-1) + ")'>上一页</a></li>";
+        // 0 <= pages < 5
+        if(pages < 5) {
+            for(var i = 1; i <= pages; i++) {
+                pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showUserList(" + i + ")'>" + i + "</a></li>";
+            }
+        } else {
+            // 居中显示
+            if(currentPage >= 3 && currentPage <= pages-2) {
+                for(var i = currentPage - 2; i <= currentPage + 2; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showUserList(" + i + ")'>" + i + "</a></li>";
+                }
+            } else {
+                // 显示后5条
+                for(var i = pages - 4; i <= pages; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showUserList(" + i + ")'>" + i + "</a></li>";
+                }
+            }
+        }
+        pageList += "<li " + (currentPage+1 >= pages ? "class='disabled'" : "") + "><a onclick='showUserList(" + (currentPage+1) + ")'>下一页</a></li>";
+
+        // "<li class=\"active\"><a href=\"#\">1 <span class=\"sr-only\">(current)</span></a></li>";
+        // "<li><a href=\"#\">下一页</a></li>";
+
+        $(".pagination").html(pageList);
+    }
+</script>
+</body>
+</html>

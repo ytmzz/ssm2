@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="mysqlTables" targetRuntime="MyBatis3">
+        <!--不生成注释-->
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"></property>
+        </commentGenerator>
+        <!--数据库信息-->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/tm_system?serverTimezone=UTC&amp;characterEncoding=utf8&amp;useSSL=false"
+                        userId="root"
+                        password="123456">
+            <property name="useInformationSchema" value="true"/>
+            <!-- 解决多表重名导致的生成resultMap重复以及实体类错误的问题 -->
+            <property name="nullCatalogMeansCurrent" value="true"/>
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!--指定生成的model位置-->
+        <javaModelGenerator targetPackage="com.ytmzz.pojo" targetProject="src/main/java">
+        </javaModelGenerator>
+
+        <!--指定生成的mapper文件位置-->
+        <sqlMapGenerator targetPackage="com.ytmzz.dao" targetProject="src/main/resources">
+
+        </sqlMapGenerator>
+
+        <!--指定生成的mapper接口位置-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.ytmzz.dao" targetProject="src/main/java">
+        </javaClientGenerator>
+        <table schema="tm_system" tableName="administrator" domainObjectName="Administrator"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="class" domainObjectName="Clazz"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="class_course_teacher" domainObjectName="ClassCourseTeacher"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="company" domainObjectName="Company"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="course" domainObjectName="Course"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="employment" domainObjectName="Employment"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="examination" domainObjectName="Examination"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="permission" domainObjectName="Permission"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="record" domainObjectName="Record"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="role" domainObjectName="Role"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="role_permission" domainObjectName="RolePermission"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="shift_transfer" domainObjectName="ShiftTransfer"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="student" domainObjectName="Student"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="supervisor" domainObjectName="Supervisor"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="teacher" domainObjectName="Teacher"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="user" domainObjectName="User"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+
+        <table schema="tm_system" tableName="user_role" domainObjectName="UserRole"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false" />
+    </context>
+</generatorConfiguration>

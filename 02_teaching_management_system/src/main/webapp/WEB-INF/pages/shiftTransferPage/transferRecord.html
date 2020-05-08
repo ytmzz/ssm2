@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+        th {
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+    <title>transferRecord</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="glyphicon glyphicon-th"></i> 数据列表</h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-inline" role="form" style="float:left;" id="conditionShiftTransferForm">
+                        <div class="form-group has-feedback">
+                            <div class="input-group">
+                                <div class="input-group-addon">查询条件</div>
+                                <!-- 可扩展 -->
+<!--                                <input class="form-control has-success" type="text" name="conditionUserName" placeholder="请输入查询条件">-->
+                                <select class="form-control" name="stStatus">
+                                    <option selected>全部</option>
+                                    <option>已撤回</option>
+                                    <option>已驳回</option>
+                                    <option>已完成</option>
+                                    <option>申请中</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-warning" id="searchBtn"><i class="glyphicon glyphicon-search"></i> 查询</button>
+                    </form>
+                    <!--                    <button type="button" class="btn btn-danger" id="btnDel" style="float:right;margin-left:10px;"><i class=" glyphicon glyphicon-remove"></i> 删除</button>-->
+<!--                    <button type="button" class="btn btn-primary" style="float:right;" onclick="window.location.href='/tm_system/user/jumpAddPage'"><i class="glyphicon glyphicon-plus"></i> 新增</button>-->
+                    <br>
+                    <hr style="clear:both;">
+                    <div class="table-responsive">
+                        <form id="listForm">
+                            <table class="table  table-bordered">
+                                <thead>
+                                <tr >
+                                    <th width="30">#</th>
+                                    <!--                                    <th width="30"><input type="checkbox" id="selectCheckBox"></th>-->
+                                    <th>学生名</th>
+                                    <th>申请时间</th>
+                                    <th>班主任</th>
+                                    <th>班主任<br />审批时间</th>
+                                    <th>班主任<br />审批结果</th>
+                                    <th>教学主管</th>
+                                    <th>教学主管<br />审批时间</th>
+                                    <th>教学主管<br />审批结果</th>
+                                    <th>原班级</th>
+                                    <th>请求班级</th>
+                                    <th>审批状态</th>
+                                    <th width="100">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="recordList">
+
+                                </tbody>
+                                <tfoot>
+                                <tr >
+                                    <td colspan="13" align="center">
+                                        <ul class="pagination">
+                                        </ul>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                            <!--                          <input type="hidden" id="currentPage" />-->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        getShiftTransferList(1);
+
+        $("#searchBtn").click(function () {
+            getShiftTransferList(1);
+        });
+    });
+
+    function getShiftTransferList(currentPage) {
+        //if(checkSufClass()) {
+        var condition = $("#conditionShiftTransferForm").serialize();
+            $.ajax({
+                url: "/tm_system/shiftTransfer/getShiftTransferList",
+                type: "get",
+                data:$.param({"currentPage":currentPage}) + '&' + condition,
+                dataType:"json",
+                success: function (data) {
+                    if(data.result) {
+                        var message = "";
+                        $.each(data.shiftTransfers,function (index, record) {
+                            message += "<tr>";
+                            message += "<input type='hidden' name='recordIds' value='" + record.stId + "'/>";
+                            message += "<td>" + (index + 1) + "</td>";
+                            message += "<td>" + record.student.studentName + "</td>";
+                            message += "<td>" + dateFormat(record.stStartTime) + "</td>";
+                            message += "<td>" + record.headmaster.headmasterName + "</td>";
+                            message += "<td>" + dateFormat(record.stHeadmasterTime) + "</td>";
+                            message += "<td>" + stringFormat(record.stHeadmasterResult) + "</td>";
+                            message += "<td>" + ((record.supervisor == null) ? "" : record.supervisor.supervisorName) + "</td>";
+                            message += "<td>" + dateFormat(record.stSupervisorTime) + "</td>";
+                            message += "<td>" + stringFormat(record.stSupervisorResult) + "</td>";
+                            message += "<td>" + record.preClassInfo.className + "</td>";
+                            message += "<td>" + record.sufClassInfo.className + "</td>";
+                            message += "<td>" + record.stStatus + "</td>";
+                            message += "<td>";
+                            if(data.currentRole.roleName == "学生" && judgementStudentButtonStatus(record.stStatus)) {
+                                message += "<button type='button' name='edit' class='studentBtn btn btn-primary btn-xs'>撤回</button>";
+                            } else if(data.currentRole.roleName == "班主任" && judgementHeadmasterButtonStatus(record.stHeadmasterResult, record.stStatus)) {
+                                message += "<button type='button' name='edit' class='headmasterAgreeBtn btn btn-primary btn-xs'>同意</button> ";
+                                message += "<button type='button' name='edit' class='headmasterRejectBtn btn btn-danger btn-xs'>驳回</button>";
+                            } else if(data.currentRole.roleName == "教学主管" && judgementSupervisorButtonStatus(record.stHeadmasterResult, record.stSupervisorResult, record.stStatus)) {
+                                message += "<button type='button' name='edit' class='supervisorAgreeBtn btn btn-primary btn-xs'>同意</button> ";
+                                message += "<button type='button' name='edit' class='supervisorRejectBtn btn btn-danger btn-xs'>驳回</button>";
+                            }
+                            message += "</td>";
+                            message += "</tr>";
+                        });
+                        $("#recordList").html(message);
+
+                        $(".studentBtn").click(function () {
+                            var stId = $(this).parents("tr").find("input[type=hidden]").val();
+                            revokeApply(stId);
+                        });
+
+                        $(".headmasterAgreeBtn").click(function () {
+                            var stId = $(this).parents("tr").find("input[type=hidden]").val();
+                            operatorHeadmaster(stId, "同意");
+                        });
+
+                        $(".headmasterRejectBtn").click(function () {
+                            var stId = $(this).parents("tr").find("input[type=hidden]").val();
+                            operatorHeadmaster(stId, "驳回");
+                        });
+
+                        $(".supervisorAgreeBtn").click(function () {
+                            var stId = $(this).parents("tr").find("input[type=hidden]").val();
+                            operatorSupervisor(stId, "同意");
+                        });
+
+                        $(".supervisorRejectBtn").click(function () {
+                            var stId = $(this).parents("tr").find("input[type=hidden]").val();
+                            operatorSupervisor(stId, "驳回");
+                        });
+
+                        showPageList(data.pageBean);
+                    }
+                }
+            });
+        //}
+    }
+
+    function operatorSupervisor(stId, status) {
+        $.ajax({
+            url:"/tm_system/shiftTransfer/operatorSupervisor",
+            data:{"stId":stId, "stSupervisorResult":status},
+            type:"post",
+            success:function (result) {
+                if(result) {
+                    alert("操作成功");
+                } else {
+                    alert("操作失败");
+                }
+                location.href = "/tm_system/shiftTransfer/jumpTransferRecord";
+            }
+        });
+    }
+
+    function operatorHeadmaster(stId, status) {
+        $.ajax({
+            url:"/tm_system/shiftTransfer/operatorHeadmaster",
+            data:{"stId":stId, "stHeadmasterResult":status},
+            type:"post",
+            success:function (result) {
+                if(result) {
+                    alert("操作成功");
+                } else {
+                    alert("操作失败");
+                }
+                location.href = "/tm_system/shiftTransfer/jumpTransferRecord";
+            }
+        });
+    }
+
+    function revokeApply(stId) {
+        $.ajax({
+            url:"/tm_system/shiftTransfer/revokeApply",
+            data:{"stId":stId},
+            type:"post",
+            success:function (result) {
+                if(result) {
+                    alert("撤回成功");
+                } else {
+                    alert("撤回失败");
+                }
+                location.href = "/tm_system/shiftTransfer/jumpTransferRecord";
+            }
+        });
+    }
+
+    // 判断按钮是否显示
+    function judgementStudentButtonStatus(status) {
+        if(status == "已撤回" || status == "已驳回" || status == "已完成") {
+            return false;
+        }
+
+        return true;
+    }
+
+    function judgementHeadmasterButtonStatus(headmasterResult, status) {
+        if(status == "已撤回" || status == "已驳回" || status == "已完成") {
+            return false;
+        }
+        if(headmasterResult != null) {
+            return false;
+        }
+        return true;
+    }
+
+    function judgementSupervisorButtonStatus(headmasterResult, supervisorResult, status) {
+        if(status == "已撤回" || status == "已驳回" || status == "已完成") {
+            return false;
+        }
+        if(headmasterResult == null) {
+            return false;
+        }
+        if(supervisorResult != null) {
+            return false;
+        }
+        return true;
+    }
+
+    function dateFormat(millions) {
+        if(millions == null) {
+            return "";
+        } else {
+           return new Date(millions).toLocaleDateString();
+        }
+    }
+    function stringFormat(str) {
+        return str == null ? "" : str;
+    }
+
+    function showPageList(pageBean) {
+        var pages = pageBean.pages;
+        var currentPage = pageBean.currentPage;
+        var count = pageBean.count;
+        var pageList = "";
+        pageList += "<li " + (currentPage-1 <= 0 ? "class='disabled'" : "") + "><a onclick='getShiftTransferList(" + (currentPage-1) + ")'>上一页</a></li>";
+        // 0 <= pages < 5
+        if(pages < 5) {
+            for(var i = 1; i <= pages; i++) {
+                pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='getShiftTransferList(" + i + ")'>" + i + "</a></li>";
+            }
+        } else {
+            // 居中显示
+            if(currentPage >= 3 && currentPage <= pages-2) {
+                for(var i = currentPage - 2; i <= currentPage + 2; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='getShiftTransferList(" + i + ")'>" + i + "</a></li>";
+                }
+            } else {
+                // 显示后5条
+                for(var i = pages - 4; i <= pages; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='getShiftTransferList(" + i + ")'>" + i + "</a></li>";
+                }
+            }
+        }
+        pageList += "<li " + (currentPage+1 >= pages ? "class='disabled'" : "") + "><a onclick='getShiftTransferList(" + (currentPage+1) + ")'>下一页</a></li>";
+
+        // "<li class=\"active\"><a href=\"#\">1 <span class=\"sr-only\">(current)</span></a></li>";
+        // "<li><a href=\"#\">下一页</a></li>";
+
+        $(".pagination").html(pageList);
+    }
+</script>
+</body>
+</html>

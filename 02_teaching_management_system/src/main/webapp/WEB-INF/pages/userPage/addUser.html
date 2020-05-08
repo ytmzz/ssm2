@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UFT-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="/tm_system/css/main.css">-->
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>addUser</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <ol class="breadcrumb">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">数据列表</a></li>
+                <li class="active">新增</li>
+            </ol>
+            <div class="panel panel-default">
+                <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <form role="form" action="/tm_system/user/addUser" id="addForm">
+                        <div class="form-group">
+                            <label for="userName">登陆账号</label>
+                            <input type="text" class="form-control" name="userName" id="userName" placeholder="请输入登陆账号">
+                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label for="uaccount">用户名称</label>-->
+<!--                            <input type="text" class="form-control" name="uaccount" id="uaccount" placeholder="请输入用户名称">-->
+<!--                        </div>-->
+<!--                        <div class="form-group">-->
+<!--                            <label for="uemail">邮箱地址</label>-->
+<!--                            <input type="email" class="form-control" name="uemail" id="uemail" placeholder="请输入邮箱地址">-->
+<!--                            <p class="help-block label label-warning">请输入合法的邮箱地址, 格式为： xxxx@xxxx.com</p>-->
+<!--                        </div>-->
+                        <button id="addBtn" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> 新增</button>
+                        <button id="resetBtn" type="reset" class="btn btn-danger"><i class="glyphicon glyphicon-refresh"></i> 重置</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+        $("#addBtn").click(function(){
+            addUser();
+        });
+    });
+
+    function addUser() {
+        if(checkName()) { // && checkAccount() && checkEmail()) {
+            //$("#addForm").submit();
+            $.ajax({
+                url:$("#addForm").prop("action"),
+                type:"post",
+                data:$("#addForm").serialize(),
+                success:function(result){
+                    if(result){
+                        alert("添加用户成功");
+                    } else {
+                        alert("添加用户失败")
+                    }
+                    location.href = "/tm_system/user/jumpUserPage";
+                }
+            });
+        }
+    }
+
+    function checkName() {
+        var name = $("#userName").val();
+        if(name == "") {
+            alert("账号不能为空");
+            return false;
+        }
+        return true;
+    }
+
+    // function checkAccount() {
+    //     var account = $("#uaccount").val();
+    //     if(account == "") {
+    //         alert("名称不能为空");
+    //         return false;
+    //     }
+    //     return true;
+    // }
+
+    // function checkEmail() {
+    //     var email = $("#uemail").val();
+    //     if(email == "") {
+    //         alert("邮箱不能为空");
+    //         return false;
+    //     }
+    //     var egx = /\w+@\w+.com/;
+    //     if(!egx.test(email)) {
+    //         alert("邮箱不合法");
+    //         return false;
+    //     }
+    //     return true;
+    // }
+</script>
+</body>
+</html>

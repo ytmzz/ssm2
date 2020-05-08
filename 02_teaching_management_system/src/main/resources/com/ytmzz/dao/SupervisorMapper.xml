@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.SupervisorMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.Supervisor">
+    <id column="supervisor_id" jdbcType="INTEGER" property="supervisorId" />
+    <result column="supervisor_name" jdbcType="CHAR" property="supervisorName" />
+    <result column="supervisor_age" jdbcType="INTEGER" property="supervisorAge" />
+    <result column="supervisor_hiredate" jdbcType="TIMESTAMP" property="supervisorHiredate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    supervisor_id, supervisor_name, supervisor_age, supervisor_hiredate
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from supervisor
+    where supervisor_id = #{supervisorId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from supervisor
+    where supervisor_id = #{supervisorId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.Supervisor">
+    insert into supervisor (supervisor_id, supervisor_name, supervisor_age, 
+      supervisor_hiredate)
+    values (#{supervisorId,jdbcType=INTEGER}, #{supervisorName,jdbcType=CHAR}, #{supervisorAge,jdbcType=INTEGER}, 
+      #{supervisorHiredate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.Supervisor">
+    insert into supervisor
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="supervisorId != null">
+        supervisor_id,
+      </if>
+      <if test="supervisorName != null">
+        supervisor_name,
+      </if>
+      <if test="supervisorAge != null">
+        supervisor_age,
+      </if>
+      <if test="supervisorHiredate != null">
+        supervisor_hiredate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="supervisorId != null">
+        #{supervisorId,jdbcType=INTEGER},
+      </if>
+      <if test="supervisorName != null">
+        #{supervisorName,jdbcType=CHAR},
+      </if>
+      <if test="supervisorAge != null">
+        #{supervisorAge,jdbcType=INTEGER},
+      </if>
+      <if test="supervisorHiredate != null">
+        #{supervisorHiredate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.Supervisor">
+    update supervisor
+    <set>
+      <if test="supervisorName != null">
+        supervisor_name = #{supervisorName,jdbcType=CHAR},
+      </if>
+      <if test="supervisorAge != null">
+        supervisor_age = #{supervisorAge,jdbcType=INTEGER},
+      </if>
+      <if test="supervisorHiredate != null">
+        supervisor_hiredate = #{supervisorHiredate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where supervisor_id = #{supervisorId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.Supervisor">
+    update supervisor
+    set supervisor_name = #{supervisorName,jdbcType=CHAR},
+      supervisor_age = #{supervisorAge,jdbcType=INTEGER},
+      supervisor_hiredate = #{supervisorHiredate,jdbcType=TIMESTAMP}
+    where supervisor_id = #{supervisorId,jdbcType=INTEGER}
+  </update>
+
+  <!-- 自定义 -->
+  <select id="isExist" resultType="int">
+    select 1 from supervisor where supervisor_id = #{supervisorId}
+  </select>
+</mapper>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.ShiftTransferMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.ShiftTransfer">
+    <id column="st_id" jdbcType="INTEGER" property="stId" />
+    <result column="st_student_id" jdbcType="INTEGER" property="stStudentId" />
+    <result column="st_start_time" jdbcType="TIMESTAMP" property="stStartTime" />
+    <result column="st_headmaster_id" jdbcType="INTEGER" property="stHeadmasterId" />
+    <result column="st_headmaster_time" jdbcType="TIMESTAMP" property="stHeadmasterTime" />
+    <result column="st_headmaster_result" jdbcType="CHAR" property="stHeadmasterResult" />
+    <result column="st_supervisor_id" jdbcType="INTEGER" property="stSupervisorId" />
+    <result column="st_supervisor_time" jdbcType="TIMESTAMP" property="stSupervisorTime" />
+    <result column="st_supervisor_result" jdbcType="CHAR" property="stSupervisorResult" />
+    <result column="pre_class_id" jdbcType="INTEGER" property="preClassId" />
+    <result column="suf_class_id" jdbcType="INTEGER" property="sufClassId" />
+    <result column="st_status" jdbcType="CHAR" property="stStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    st_id, st_student_id, st_start_time, st_headmaster_id, st_headmaster_time, st_headmaster_result, 
+    st_supervisor_id, st_supervisor_time, st_supervisor_result, pre_class_id, suf_class_id, 
+    st_status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from shift_transfer
+    where st_id = #{stId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from shift_transfer
+    where st_id = #{stId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.ShiftTransfer">
+    insert into shift_transfer (st_id, st_student_id, st_start_time, 
+      st_headmaster_id, st_headmaster_time, st_headmaster_result, 
+      st_supervisor_id, st_supervisor_time, st_supervisor_result, 
+      pre_class_id, suf_class_id, st_status
+      )
+    values (#{stId,jdbcType=INTEGER}, #{stStudentId,jdbcType=INTEGER}, #{stStartTime,jdbcType=TIMESTAMP}, 
+      #{stHeadmasterId,jdbcType=INTEGER}, #{stHeadmasterTime,jdbcType=TIMESTAMP}, #{stHeadmasterResult,jdbcType=CHAR}, 
+      #{stSupervisorId,jdbcType=INTEGER}, #{stSupervisorTime,jdbcType=TIMESTAMP}, #{stSupervisorResult,jdbcType=CHAR}, 
+      #{preClassId,jdbcType=INTEGER}, #{sufClassId,jdbcType=INTEGER}, #{stStatus,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.ShiftTransfer">
+    insert into shift_transfer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="stId != null">
+        st_id,
+      </if>
+      <if test="stStudentId != null">
+        st_student_id,
+      </if>
+      <if test="stStartTime != null">
+        st_start_time,
+      </if>
+      <if test="stHeadmasterId != null">
+        st_headmaster_id,
+      </if>
+      <if test="stHeadmasterTime != null">
+        st_headmaster_time,
+      </if>
+      <if test="stHeadmasterResult != null">
+        st_headmaster_result,
+      </if>
+      <if test="stSupervisorId != null">
+        st_supervisor_id,
+      </if>
+      <if test="stSupervisorTime != null">
+        st_supervisor_time,
+      </if>
+      <if test="stSupervisorResult != null">
+        st_supervisor_result,
+      </if>
+      <if test="preClassId != null">
+        pre_class_id,
+      </if>
+      <if test="sufClassId != null">
+        suf_class_id,
+      </if>
+      <if test="stStatus != null">
+        st_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="stId != null">
+        #{stId,jdbcType=INTEGER},
+      </if>
+      <if test="stStudentId != null">
+        #{stStudentId,jdbcType=INTEGER},
+      </if>
+      <if test="stStartTime != null">
+        #{stStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="stHeadmasterId != null">
+        #{stHeadmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="stHeadmasterTime != null">
+        #{stHeadmasterTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="stHeadmasterResult != null">
+        #{stHeadmasterResult,jdbcType=CHAR},
+      </if>
+      <if test="stSupervisorId != null">
+        #{stSupervisorId,jdbcType=INTEGER},
+      </if>
+      <if test="stSupervisorTime != null">
+        #{stSupervisorTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="stSupervisorResult != null">
+        #{stSupervisorResult,jdbcType=CHAR},
+      </if>
+      <if test="preClassId != null">
+        #{preClassId,jdbcType=INTEGER},
+      </if>
+      <if test="sufClassId != null">
+        #{sufClassId,jdbcType=INTEGER},
+      </if>
+      <if test="stStatus != null">
+        #{stStatus,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.ShiftTransfer">
+    update shift_transfer
+    <set>
+      <if test="stStudentId != null">
+        st_student_id = #{stStudentId,jdbcType=INTEGER},
+      </if>
+      <if test="stStartTime != null">
+        st_start_time = #{stStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="stHeadmasterId != null">
+        st_headmaster_id = #{stHeadmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="stHeadmasterTime != null">
+        st_headmaster_time = #{stHeadmasterTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="stHeadmasterResult != null">
+        st_headmaster_result = #{stHeadmasterResult,jdbcType=CHAR},
+      </if>
+      <if test="stSupervisorId != null">
+        st_supervisor_id = #{stSupervisorId,jdbcType=INTEGER},
+      </if>
+      <if test="stSupervisorTime != null">
+        st_supervisor_time = #{stSupervisorTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="stSupervisorResult != null">
+        st_supervisor_result = #{stSupervisorResult,jdbcType=CHAR},
+      </if>
+      <if test="preClassId != null">
+        pre_class_id = #{preClassId,jdbcType=INTEGER},
+      </if>
+      <if test="sufClassId != null">
+        suf_class_id = #{sufClassId,jdbcType=INTEGER},
+      </if>
+      <if test="stStatus != null">
+        st_status = #{stStatus,jdbcType=CHAR},
+      </if>
+    </set>
+    where st_id = #{stId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.ShiftTransfer">
+    update shift_transfer
+    set st_student_id = #{stStudentId,jdbcType=INTEGER},
+      st_start_time = #{stStartTime,jdbcType=TIMESTAMP},
+      st_headmaster_id = #{stHeadmasterId,jdbcType=INTEGER},
+      st_headmaster_time = #{stHeadmasterTime,jdbcType=TIMESTAMP},
+      st_headmaster_result = #{stHeadmasterResult,jdbcType=CHAR},
+      st_supervisor_id = #{stSupervisorId,jdbcType=INTEGER},
+      st_supervisor_time = #{stSupervisorTime,jdbcType=TIMESTAMP},
+      st_supervisor_result = #{stSupervisorResult,jdbcType=CHAR},
+      pre_class_id = #{preClassId,jdbcType=INTEGER},
+      suf_class_id = #{sufClassId,jdbcType=INTEGER},
+      st_status = #{stStatus,jdbcType=CHAR}
+    where st_id = #{stId,jdbcType=INTEGER}
+  </update>
+
+  <!-- 自定义 -->
+  <resultMap id="referenceMap" type="com.ytmzz.pojo.ShiftTransfer" extends="BaseResultMap">
+    <association property="student" column="st_student_id" select="com.ytmzz.dao.StudentMapper.selectByPrimaryKey" fetchType="lazy"/>
+    <association property="headmaster" column="st_headmaster_id" select="com.ytmzz.dao.HeadmasterMapper.selectByPrimaryKey" fetchType="lazy"/>
+    <association property="supervisor" column="st_supervisor_id" select="com.ytmzz.dao.SupervisorMapper.selectByPrimaryKey" fetchType="lazy"/>
+    <association property="preClassInfo" column="pre_class_id" select="com.ytmzz.dao.ClassInfoMapper.selectByPrimaryKey" fetchType="lazy"/>
+    <association property="sufClassInfo" column="suf_class_id" select="com.ytmzz.dao.ClassInfoMapper.selectByPrimaryKey" fetchType="lazy"/>
+  </resultMap>
+
+  <select id="checkActiveRecord" parameterType="int" resultType="int">
+    select count(1) from shift_transfer
+    where st_student_id = #{studentId} and st_status = '申请中'
+  </select>
+
+  <select id="selectByCondition" parameterType="ShiftTransfer" resultMap="referenceMap">
+    select * from shift_transfer
+    <where>
+      <if test="stStudentId != null">
+        and st_student_id = #{stStudentId}
+      </if>
+      <if test="stHeadmasterId != null">
+        and st_headmaster_id = #{stHeadmasterId}
+      </if>
+      <if test="stStatus != null and stStatus != ''">
+        and st_status = #{stStatus}
+      </if>
+    </where>
+  </select>
+
+  <select id="getCountByCondition" parameterType="ShiftTransfer" resultType="int">
+    select count(1) from shift_transfer
+    <where>
+      <if test="stStudentId != null">
+        and st_student_id = #{stStudentId}
+      </if>
+      <if test="stHeadmasterId != null">
+        and st_headmaster_id = #{stHeadmasterId}
+      </if>
+      <if test="stStatus != null and stStatus != ''">
+        and st_status = #{stStatus}
+      </if>
+    </where>
+  </select>
+</mapper>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>shiftTransfer</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <ol class="breadcrumb">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">数据列表</a></li>
+                <li class="active">修改</li>
+            </ol>
+            <div class="panel panel-default">
+                <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <form role="form" id="editForm" action="/tm_system/class/createNewClass" class="form-horizontal">
+                        <div class="form-group">
+                            <label for="studentName" class="col-sm-2 control-label">申请人</label>
+                            <div class="col-sm-10">
+                                <input type="hidden" name="stStudentId" id="stStudentId" />
+                                <span class="form-control" id="studentName"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="preClass" class="col-sm-2 control-label">原班级</label>
+                            <div class="col-sm-10">
+                                <input type="hidden" name="preClassId" id="preClassId" />
+                                <span class="form-control" id="preClass"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="headmasterName" class="col-sm-2 control-label">班主任</label>
+                            <div class="col-sm-10">
+                                <input type="hidden" name="stHeadmasterId" id="stHeadmasterId" />
+                                <span class="form-control" id="headmasterName"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="sufClassId" class="col-sm-2 control-label">申请班级</label>
+                            <div class="col-sm-10">
+                                <select class="form-control" name="sufClassId" id="sufClassId">
+                                    <option value="-1">----请选择----</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button id="applyBtn" type="button" class="btn btn-success"><i class="glyphicon glyphicon-edit"></i> 申请</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        checkStudentStatus();
+
+        checkActiveRecord();
+
+        getShiftTransferInfo();
+
+        $("#applyBtn").click(function () {
+            applyShiftTransfer();
+        });
+    });
+
+    function applyShiftTransfer() {
+        if(checkSufClass()) {
+            $.ajax({
+                url: "/tm_system/shiftTransfer/applyShiftTransfer",
+                data: $("#editForm").serialize(),
+                type: "post",
+                success: function (result) {
+                    if (result) {
+                        alert("申请成功");
+                        location.href = "/tm_system/shiftTransfer/jumpTransferRecord";
+                    } else {
+                        alert("申请失败");
+                    }
+                }
+            });
+        }
+    }
+
+    function checkSufClass() {
+        var sufClassId = $("#sufClassId").val();
+        var flag = true;
+        if(sufClassId <= 0) {
+            alert("请选择一个班级");
+            flag = false;
+        }
+        return flag;
+    }
+
+    // 判断学生是否毕业
+    function checkStudentStatus() {
+        $.ajax({
+            url:"/tm_system/student/getStudentStatus",
+            type:"post",
+            async:false,
+            success: function (data) {
+                if(data.result) {
+                    if(data.studentStatus == "已毕业") {
+                        alert("学生已毕业，无法申请转班");
+                        location.href = "/tm_system/shiftTransfer/jumpTransferRecord";
+                    }
+                } else {
+                    alert("学生信息获取失败");
+                    location.href = "/tm_system/shiftTransfer/jumpTransferRecord";
+                }
+            }
+        });
+    }
+
+    // 判断学生是否有未完成转班工单
+    function checkActiveRecord() {
+        $.ajax({
+            url:"/tm_system/shiftTransfer/checkActiveRecord",
+            type:"post",
+            async:false,
+            success: function (result) {
+                if(result) {
+                    alert("存在未完成工单");
+                    location.href = "/tm_system/shiftTransfer/jumpTransferRecord";
+                }
+            }
+        });
+    }
+
+    function getShiftTransferInfo() {
+        $.ajax({
+            url:"/tm_system/class/getShiftTransferInfo",
+            type:"get",
+            dataType:"json",
+            success:function(data) {
+                if(data.result) {
+                    var infoVo = data.infoVo;
+                    $("#stStudentId").val(infoVo.student.studentId);
+                    $("#studentName").text(infoVo.student.studentName);
+                    $("#preClassId").val(infoVo.classInfo.classId);
+                    $("#preClass").text(infoVo.classInfo.className);
+                    $("#stHeadmasterId").val(infoVo.headmaster.headmasterId);
+                    $("#headmasterName").text(infoVo.headmaster.headmasterName);
+
+                    $.each(infoVo.otherClassInfo, function (index, classInfo) {
+                        var message = "<option value='" + classInfo.classId + "'>" + classInfo.className + "</option>";
+                        $("#sufClassId").append(message);
+                    });
+                } else {
+                    alert("获取转班信息失败");
+                    location.href = "/tm_system/shiftTransfer/jumpTransferRecord";
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

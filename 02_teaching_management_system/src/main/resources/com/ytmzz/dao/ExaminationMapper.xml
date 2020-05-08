@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.ExaminationMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.Examination">
+    <id column="examination_id" jdbcType="INTEGER" property="examinationId" />
+    <result column="course_id" jdbcType="INTEGER" property="courseId" />
+    <result column="student_id" jdbcType="INTEGER" property="studentId" />
+    <result column="examination_score" jdbcType="DOUBLE" property="examinationScore" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    examination_id, course_id, student_id, examination_score
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from examination
+    where examination_id = #{examinationId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from examination
+    where examination_id = #{examinationId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.Examination">
+    insert into examination (examination_id, course_id, student_id, 
+      examination_score)
+    values (#{examinationId,jdbcType=INTEGER}, #{courseId,jdbcType=INTEGER}, #{studentId,jdbcType=INTEGER}, 
+      #{examinationScore,jdbcType=DOUBLE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.Examination">
+    insert into examination
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="examinationId != null">
+        examination_id,
+      </if>
+      <if test="courseId != null">
+        course_id,
+      </if>
+      <if test="studentId != null">
+        student_id,
+      </if>
+      <if test="examinationScore != null">
+        examination_score,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="examinationId != null">
+        #{examinationId,jdbcType=INTEGER},
+      </if>
+      <if test="courseId != null">
+        #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="studentId != null">
+        #{studentId,jdbcType=INTEGER},
+      </if>
+      <if test="examinationScore != null">
+        #{examinationScore,jdbcType=DOUBLE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.Examination">
+    update examination
+    <set>
+      <if test="courseId != null">
+        course_id = #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="studentId != null">
+        student_id = #{studentId,jdbcType=INTEGER},
+      </if>
+      <if test="examinationScore != null">
+        examination_score = #{examinationScore,jdbcType=DOUBLE},
+      </if>
+    </set>
+    where examination_id = #{examinationId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.Examination">
+    update examination
+    set course_id = #{courseId,jdbcType=INTEGER},
+      student_id = #{studentId,jdbcType=INTEGER},
+      examination_score = #{examinationScore,jdbcType=DOUBLE}
+    where examination_id = #{examinationId,jdbcType=INTEGER}
+  </update>
+
+  <!-- 自定义 -->
+  <select id="selectByStudentId" resultMap="BaseResultMap" parameterType="int">
+    select * from examination
+    where student_id = #{studentId}
+  </select>
+
+  <select id="selectByStudentIdAndCourseId" resultMap="BaseResultMap">
+    select * from examination
+    where student_id = #{studentId} and course_id = #{courseId}
+  </select>
+</mapper>

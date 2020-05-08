@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>administratorInfo</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <form role="form" id="updateForm">
+                        <input type="hidden" name="administratorId" id="administratorId" />
+                        <div class="form-group">
+                            <label for="administratorName">管理员名称</label>
+                            <input type="text" class="form-control" name="administratorName" id="administratorName" placeholder="请输入管理员名称">
+                        </div>
+                        <button id="updateBtn" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> 更新</button>
+                        <button id="resetBtn" type="reset" class="btn btn-danger"><i class="glyphicon glyphicon-refresh"></i> 重置</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        getUserInfo();
+
+        getAdministratorInfo();
+
+        $("#updateBtn").click(function(){
+            updateInfo();
+        });
+    });
+
+    function getAdministratorInfo() {
+        $.ajax({
+            url:"/tm_system/userInfo/getAdministratorInfo",
+            dataType:"json",
+            type:"get",
+            async:false,
+            success:function (data) {
+                if(data.result) {
+                    $("#administratorName").val(data.info.administratorName);
+                }
+            }
+        });
+    }
+
+    function getUserInfo() {
+        $.ajax({
+            url:"/tm_system/login/getUserInfo",
+            dataType:"json",
+            type:"get",
+            async:false,
+            success:function (data) {
+                if(data.result) {
+                    $("#administratorId").val(data.user.userId);
+                } else {
+                    alert("信息获取失败");
+                    if(data.status == "未完善") {
+                        location.href = "/tm_system/logout";
+                    }
+                }
+            }
+        });
+    }
+
+    function updateInfo() {
+        if(checkName()) {
+            //$("#addForm").submit();
+            $.ajax({
+                url:"/tm_system/userInfo/updateAdministratorInfo",
+                type:"post",
+                data:$("#updateForm").serialize(),
+                success:function(result){
+                    if(result){
+                        alert("更新成功");
+                        location.href = "/tm_system/login/jumpMainPage";
+                    } else {
+                        alert("更新失败");
+                        location.href = "/tm_system/logout";
+                    }
+                }
+            });
+        }
+    }
+
+    function checkName() {
+        var name = $("#administratorName").val();
+        if(name == "") {
+            alert("管理员名称不能为空");
+            return false;
+        }
+        return true;
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="/tm_system/css/main.css">-->
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+        /*input[type="time"]::-webkit-clear-button{*/
+        /*    display:none;*/
+        /*}*/
+    </style>
+    <title>edit</title>
+</head>
+
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <ol class="breadcrumb">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">数据列表</a></li>
+                <li class="active">修改</li>
+            </ol>
+            <div class="panel panel-default">
+                <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label for="classId" id="className"></label>
+                            <input type="hidden" id="classId" />
+                        </div>
+                        <div class="form-group">
+                            <label for="defaultRecordDate">考勤日期</label>
+                            <input type="date" id="defaultRecordDate" />
+                        </div>
+                        <div class="form-group">
+                            <label for="defaultRecordResult">考勤结果</label>
+                            <select id="defaultRecordResult">
+                                <option selected>正常</option>
+                                <option>迟到</option>
+                                <option>事假</option>
+                                <option>病假</option>
+                                <option>旷课</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-default" id="submitBtn">提交</button>
+                    </div>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th width="30">#</th>
+                            <th>姓名</th>
+                            <th width="300">考勤时间</th>
+                            <th width="300">考勤结果</th>
+                        </tr>
+                        </thead>
+                        <tbody id="studentList">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script src="/tm_system/layer/layer.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+        getStudentList();
+
+        initDate();
+
+        setDate();
+        setResult();
+
+        $("#defaultRecordDate").change(function () {
+            setDate();
+        });
+        $("#defaultRecordResult").change(function () {
+            setResult();
+        });
+
+        $("#submitBtn").click(function () {
+            saveAllResult();
+        })
+    });
+
+    function saveAllResult() {
+        var jsonStr = getJson();
+        console.log(jsonStr);
+        $.ajax({
+            url:"/tm_system/record/saveAllRecord",
+            data:jsonStr,
+            type:"post",
+            contentType : "application/json",
+            success:function (result) {
+                if(result) {
+                    alert("考勤录入成功");
+                } else {
+                    alert("考勤录入失败");
+                }
+                location.href = "/tm_system/record/jumpRecordPage"
+            }
+        });
+    }
+
+    function getJson() {
+        var jsonStr = "[";
+        var trs = $("#studentList").children();
+        var classId = $("#classId").val();
+        for(var i = 0; i < trs.length; i++) {
+            var studentId = trs.eq(i).find("input[name=studentIds]").val();
+            var recordDate = trs.eq(i).find("input[type=date]").val();
+            var recordResult = trs.eq(i).find("select").val();
+
+            // json格式必须使用双引号，最好将键值都引起来，日期格式yyyy/MM/dd无法被后台转换，目前使用yyyy-MM-dd
+            jsonStr += "{\"classId\":\"" + classId + "\",";
+            jsonStr += "\"studentId\":\"" + studentId + "\",";
+            jsonStr += "\"recordDate\":\"" + recordDate + "\",";
+            jsonStr += "\"recordResult\":\"" + recordResult + "\"},";
+        }
+        jsonStr = jsonStr.substring(0,jsonStr.length-1)+"]";
+        return jsonStr;
+    }
+
+    function setDate() {
+        var dates = $("#studentList").find("input[name=date]");
+        var defaultDate = $("#defaultRecordDate").val();
+        console.log(new Date(defaultDate).toLocaleDateString());
+        for(var i = 0; i < dates.length; i++) {
+            dates.eq(i).val(defaultDate);
+        }
+    }
+    function setResult() {
+        var results = $("#studentList").find("select");
+        var defaultResult = $("#defaultRecordResult").val();
+        for(var i = 0; i < results.length; i++) {
+            // var options = results.eq(i).children();
+            // for(var j = 0; j < options.length; j++) {
+            //     alert(options.eq(j).val());
+            //     if(options.eq(j).val() == defaultResult) {
+            //         options.eq(j).attr("selected", "selected");
+            //     } else {
+            //         options.eq(j).removeAttr("selected");
+            //     }
+            // }
+            results.eq(i).val(defaultResult);
+        }
+    }
+
+    // 初始化考勤时间为当天
+    function initDate() {
+        var time = new Date();
+        var day = ("0" + time.getDate()).slice(-2);
+        var month = ("0" + (time.getMonth() + 1)).slice(-2);
+        var today = time.getFullYear() + "-" + (month) + "-" + (day);
+        $('#defaultRecordDate').val(today);
+    }
+
+    function getStudentList() {
+        $.ajax({
+            url:"/tm_system/record/getStudents",
+            async:false,
+            dataType:"json",
+            success:function (data) {
+                if(data.result) {
+                    $("#className").text(data.classInfo.className);
+                    $("#classId").val(data.classInfo.classId);
+
+                    var message = "";
+                    $.each(data.students, function (index, student) {
+                        message += "<tr>";
+                        message += "<td>" + (index + 1) + "</td>";
+                        message += "<input type='hidden' name='studentIds' value='" + student.studentId + "'/>";
+                        message += "<td>" + student.studentName + "</td>";
+                        message += "<td><input type='date' name='date' /></td>";
+                        message += "<td><select name='result'>";
+                        message += "<option selected>正常</option>";
+                        message += "<option>迟到</option>";
+                        message += "<option>事假</option>";
+                        message += "<option>病假</option>";
+                        message += "<option>旷课</option>";
+                        message += "</select></td>";
+                        message += "</tr>";
+                    })
+
+                    $("#studentList").html(message);
+                } else {
+                    alert("学生清单获取失败");
+                    location.href = "/tm_system/record/jumpRecordPage";
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

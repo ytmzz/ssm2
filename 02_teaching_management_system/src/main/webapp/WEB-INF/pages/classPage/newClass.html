@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">-->
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>newClass</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <ol class="breadcrumb">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">数据列表</a></li>
+                <li class="active">修改</li>
+            </ol>
+            <div class="panel panel-default">
+                <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <form role="form" id="editForm" action="/tm_system/class/createNewClass" class="form-horizontal">
+                        <div class="form-group">
+                            <label for="className" class="col-sm-2 control-label">班级名称</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="classInfo.className" id="className" placeholder="请输入班级名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="headmasterId" class="col-sm-2 control-label">班主任</label>
+                            <div class="col-sm-10">
+                                <select name="classInfo.headmasterId" id="headmasterId">
+                                    <option value="-1">----请选择----</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cppTeacherId" class="col-sm-2 control-label">C++老师</label>
+                            <div class="col-sm-10">
+                                <select name="cppTeacher.teacherId" id="cppTeacherId">
+                                    <option value="-1">----请选择----</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="javaTeacherId" class="col-sm-2 control-label">Java老师</label>
+                            <div class="col-sm-10">
+                                <select name="javaTeacher.teacherId" id="javaTeacherId">
+                                    <option value="-1">----请选择----</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mathTeacherId" class="col-sm-2 control-label">高等数学老师</label>
+                            <div class="col-sm-10">
+                                <select name="mathTeacher.teacherId" id="mathTeacherId">
+                                    <option value="-1">----请选择----</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button id="submitBtn" type="button" class="btn btn-success"><i class="glyphicon glyphicon-edit"></i> 提交</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        getSpareHeadmasterIds();
+        getSpareTeachers();
+        $("#submitBtn").click(function () {
+            if( checkClassName() && checkHeadmaster() && checkTeacher() ) {
+                createNewClass();
+            }
+        });
+    });
+
+    function createNewClass() {
+        $.ajax({
+            url: "/tm_system/class/createNewClass",
+            type: "post",
+            data: $("#editForm").serialize(),
+            success: function (data) {
+                if(data) {
+                    alert("开班成功");
+                } else {
+                    alert("开班失败");
+                }
+                location.href = "/tm_system/class/jumpNewClassPage";
+            }
+        });
+    }
+
+    // 检查班级名，不为空且不重复
+    function checkClassName() {
+        var flag = false;
+        var className = $("#className").val();
+        if(className == '') {
+            alert("班级名不能为空");
+            return flag;
+        }
+        $.ajax({
+            url:"/tm_system/class/checkClassName",
+            type:"post",
+            async:false,
+            data:{"className":className},
+            success:function(data) {
+                if(!data) {
+                    alert("班级名已存在");
+                } else {
+                    flag = true;
+                }
+            }
+        });
+        alert(flag);
+        return flag;
+    }
+    // 判断headmasterId有效(不为-1)
+    function checkHeadmaster() {
+        var headmasterId = $("#headmasterId").val();
+        if(headmasterId == -1) {
+            alert("请选择一个班主任");
+            return false;
+        }
+        return true;
+    }
+    // 判断老师不重复，可以为 -1 ，但是必须有一个不为 -1
+    function checkTeacher() {
+        var cppTeacherId = $("#cppTeacherId").val();
+        var javaTeacherId = $("#javaTeacherId").val();
+        var mathTeacherId = $("#mathTeacherId").val();
+        var teachers = [];
+
+        if(cppTeacherId != -1) {
+            teachers.push(cppTeacherId);
+        }
+        if(javaTeacherId != -1) {
+            teachers.push(javaTeacherId);
+        }
+        if(mathTeacherId != -1) {
+            teachers.push(mathTeacherId);
+        }
+        if(teachers < 1) {
+            alert("请至少分配一个课程老师");
+        }
+
+        for(var i = 0; i < teachers.length; i++) {
+            for(var j = i + 1; j < teachers.length; j++) {
+                if(teachers[i] == teachers[j]) {
+                    alert("不同课程请选择不同老师");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function getSpareHeadmasterIds() {
+        $.ajax({
+            url:"/tm_system/class/getSpareHeadmasters",
+            type:"get",
+            dataType:"json",
+            success:function(data) {
+                if(data.result) {
+                    var message = "";
+                    $.each(data.spareHeadmasters, function (index, headmaster) {
+                        message += "<option value='" + headmaster.headmasterId + "'>" + headmaster.headmasterName + "</option>"
+                    });
+                    $("#headmasterId").append(message);
+                }
+            }
+        });
+    }
+
+    function getSpareTeachers() {
+        $.ajax({
+            url:"/tm_system/class/getSpareTeachers",
+            type:"get",
+            dataType:"json",
+            success:function(data) {
+                if(data.result) {
+                    var message = "";
+                    $.each(data.spareTeachers, function (index, teacher) {
+                        message += "<option value='" + teacher.teacherId + "'>" + teacher.teacherName + "</option>"
+                    });
+                    $("#cppTeacherId").append(message);
+                    $("#javaTeacherId").append(message);
+                    $("#mathTeacherId").append(message);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

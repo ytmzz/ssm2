@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="/tm_system/css/main.css">-->
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <link rel="stylesheet" href="/tm_system/ztree/zTreeStyle.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>assignPermission</title>
+</head>
+
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading"><i class="glyphicon glyphicon-th-list"></i> 权限分配列表<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <button class="btn btn-success" id="btnChangePermission">分配许可</button>
+                    <input type="hidden" id="roleId" />
+                    <br><br>
+                    <ul id="treeDemo" class="ztree"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script src="/tm_system/layer/layer.js"></script>
+<script src="/tm_system/ztree/jquery.ztree.all-3.5.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        $.fn.zTree.init($("#treeDemo"), setting);
+
+        $.ajax({
+            url:"/tm_system/role/getRoleId",
+            type:"get",
+            success:function(roleId) {
+                $("#roleId").val(roleId);
+            }
+        });
+
+        $("#btnChangePermission").click(function(){
+            changePermission();
+        });
+    });
+
+    function changePermission() {
+        //获得树对象
+        var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+        //获得选中的节点
+        var nodes = treeObj.getCheckedNodes(true);
+        //拼接数据
+        var dataVal = "roleId=" + $("#roleId").val();
+        for(var i=0;i<nodes.length;i++){
+            dataVal+="&pids="+nodes[i].pid;
+        }
+        $.ajax({
+            url:"/tm_system/role/saveAssignPermission",
+            type:"post",
+            data:dataVal,
+            success:function(data){
+                if(data.result){
+                    //layer.msg("许可分配成功", {time:1000, icon:6, shift:6},function(){});
+                    alert("许可分配成功");
+                    window.location.href="/tm_system/role/jumpRolePage";
+                }else{
+                    alert("许可分配失败");
+                    // layer.msg("许可分配失败", {time:1000, icon:5, shift:6},function(){});
+                }
+            }
+        });
+    }
+
+    var setting = {
+        check : {
+            enable : true
+        },
+        view: {
+            //设置多选
+            selectedMulti: false,
+            //添加自定义的dom节点
+            addDiyDom: function(treeId, treeNode){
+                var icoObj = $("#" + treeNode.tId + "_ico"); // tId = permissionTree_1, $("#permissionTree_1_ico")
+                if ( treeNode.icon ) {
+                    icoObj.removeClass("button ico_docu ico_open").addClass("fa fa-fw " + treeNode.icon).css("background","");
+                }
+
+            },
+            removeHoverDom: function(treeId, treeNode){
+                $("#btnGroup"+treeNode.tId).remove();
+            }
+        },
+        async: {
+            enable: true,
+            url:"/tm_system/permission/getPermissionTree"
+        },
+        simpleData: {
+            enable: true,
+            idKey: "pid",
+            pIdKey: "parentid",
+            rootPId: 0
+        }
+    };
+    //$.fn.zTree.init($("#treeDemo"), setting); //异步访问数据
+</script>
+</body>
+</html>

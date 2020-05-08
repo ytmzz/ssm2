@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="/tm_system/css/main.css">-->
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>assignRole</title>
+</head>
+<body>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <ol class="breadcrumb">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">数据列表</a></li>
+                <li class="active">分配角色</li>
+            </ol>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form role="form" class="form-inline">
+                        <input type="hidden" id="userId" />
+                        <div class="form-group">
+                            <label for="unAssignedRoles">未分配角色列表</label><br>
+                            <select class="form-control" multiple size="10" style="width:100px;overflow-y:auto;" id="unAssignedRoles">
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <ul>
+                                <li class="btn btn-default glyphicon glyphicon-chevron-right" id="leftToRight"></li>
+                                <br>
+                                <li class="btn btn-default glyphicon glyphicon-chevron-left" style="margin-top:20px;" id="rightToLeft"></li>
+                            </ul>
+                        </div>
+                        <div class="form-group" style="margin-left:40px;">
+                            <label for="assignedRoles">已分配角色列表</label><br>
+                            <select class="form-control" multiple size="10" style="width:100px;overflow-y:auto;" id="assignedRoles">
+
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        showAssignRoles();
+        setLeftToRightBtnDisabled();
+        setRightToLeftBtnDisabled();
+
+        $("#leftToRight").click(function() {
+            $.ajax({
+                url:"/tm_system/user/assignRole",
+                type:"post",
+                data:{"roleId": $("#unAssignedRoles").prop("value")},
+                dataType:"json",
+                success:function(data) {
+                    if(data.result) {
+                        alert("权限分配成功");
+                    } else {
+                        alert("权限分配失败")
+                    }
+                    showAssignRoles();
+                    setLeftToRightBtnDisabled();
+                }
+            });
+        });
+
+        $("#rightToLeft").click(function() {
+            $.ajax({
+                url:"/tm_system/user/unAssignRole",
+                type:"post",
+                data:{"roleId": $("#assignedRoles").prop("value")},
+                dataType:"json",
+                success:function(data) {
+                    if(data.result) {
+                        alert("权限回收成功");
+                    } else {
+                        alert("权限回收失败")
+                    }
+                    showAssignRoles();
+                    setRightToLeftBtnDisabled();
+                }
+            });
+        });
+    });
+
+    function showAssignRoles() {
+        $.ajax({
+            url:"/tm_system/user/getAssignRoles",
+            type:"post",
+            dataType:"json",
+            success:function(data) {
+                var flag = data.result;
+                if(flag) {
+                    $("#unAssignedRoles").html("");
+                    $.each(data.unAssignedRoles, function(index, role){
+                        var optionObj = $("<option onclick='setLeftToRightBtnEnabled()'></option>");
+                        optionObj.text(role.roleName);
+                        optionObj.val(role.roleId);
+                        $("#unAssignedRoles").append(optionObj);
+                    });
+
+                    $("#assignedRoles").html("");
+                    $.each(data.assignedRoles, function(index, role){
+                        var optionObj = $("<option onclick='setRightToLeftBtnEnabled()'></option>");
+                        optionObj.text(role.roleName);
+                        optionObj.val(role.roleId);
+                        $("#assignedRoles").append(optionObj);
+                    });
+                }
+            }
+        });
+    }
+    // 未选中时，标签不可用
+    function setLeftToRightBtnDisabled() {
+        $("#leftToRight").css("pointer-events", "none");
+        $("#leftToRight").attr("disabled", "disabled");
+    }
+    function setRightToLeftBtnDisabled() {
+        $("#rightToLeft").css("pointer-events", "none");
+        $("#rightToLeft").attr("disabled", "disabled");
+    }
+
+
+    function setLeftToRightBtnEnabled() {
+        $("#leftToRight").css("pointer-events", "auto");
+        $("#leftToRight").removeAttr("disabled", "disabled");
+    }
+    function setRightToLeftBtnEnabled() {
+        $("#rightToLeft").css("pointer-events", "auto");
+        $("#rightToLeft").removeAttr("disabled", "disabled");
+    }
+</script>
+</body>
+</html>

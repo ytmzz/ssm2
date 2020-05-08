@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.ClassInfoMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.ClassInfo">
+    <id column="class_id" jdbcType="INTEGER" property="classId" />
+    <result column="class_name" jdbcType="CHAR" property="className" />
+    <result column="headmaster_id" jdbcType="INTEGER" property="headmasterId" />
+    <result column="start_day" jdbcType="TIMESTAMP" property="startDay" />
+    <result column="end_day" jdbcType="TIMESTAMP" property="endDay" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    class_id, class_name, headmaster_id, start_day, end_day
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from class_info
+    where class_id = #{classId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from class_info
+    where class_id = #{classId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.ClassInfo">
+    insert into class_info (class_id, class_name, headmaster_id, 
+      start_day, end_day)
+    values (#{classId,jdbcType=INTEGER}, #{className,jdbcType=CHAR}, #{headmasterId,jdbcType=INTEGER}, 
+      #{startDay,jdbcType=TIMESTAMP}, #{endDay,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.ClassInfo" useGeneratedKeys="true" keyProperty="classId">
+    insert into class_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="classId != null">
+        class_id,
+      </if>
+      <if test="className != null">
+        class_name,
+      </if>
+      <if test="headmasterId != null">
+        headmaster_id,
+      </if>
+      <if test="startDay != null">
+        start_day,
+      </if>
+      <if test="endDay != null">
+        end_day,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="classId != null">
+        #{classId,jdbcType=INTEGER},
+      </if>
+      <if test="className != null">
+        #{className,jdbcType=CHAR},
+      </if>
+      <if test="headmasterId != null">
+        #{headmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="startDay != null">
+        #{startDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endDay != null">
+        #{endDay,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.ClassInfo">
+    update class_info
+    <set>
+      <if test="className != null">
+        class_name = #{className,jdbcType=CHAR},
+      </if>
+      <if test="headmasterId != null">
+        headmaster_id = #{headmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="startDay != null">
+        start_day = #{startDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endDay != null">
+        end_day = #{endDay,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where class_id = #{classId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.ClassInfo">
+    update class_info
+    set class_name = #{className,jdbcType=CHAR},
+      headmaster_id = #{headmasterId,jdbcType=INTEGER},
+      start_day = #{startDay,jdbcType=TIMESTAMP},
+      end_day = #{endDay,jdbcType=TIMESTAMP}
+    where class_id = #{classId,jdbcType=INTEGER}
+  </update>
+
+  <!-- 自定义 -->
+  <select id="selectByClassName" resultMap="BaseResultMap">
+    select * from class_info where class_name = #{className}
+  </select>
+
+  <resultMap id="referenceMap" extends="BaseResultMap" type="com.ytmzz.pojo.ClassInfo">
+    <association property="headmaster" column="headmaster_id" select="com.ytmzz.dao.HeadmasterMapper.selectByPrimaryKey" fetchType="lazy"/>
+  </resultMap>
+
+  <select id="selectAllByOthers" resultMap="referenceMap">
+    select * from class_info
+  </select>
+
+  <select id="getCountByCondition" resultType="int" parameterType="ClassCondition">
+    select count(1) from class_info
+    <where>
+      <if test="conditionClassName != null and conditionClassName != ''">
+        <bind name="className" value="'%' + conditionClassName + '%'" />
+        and class_name like #{className}
+      </if>
+      <if test="conditionHeadmasterId != null">
+        and headmaster_id = #{conditionHeadmasterId}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectByCondition" resultMap="referenceMap" parameterType="ClassCondition">
+    select * from class_info
+    <where>
+      <if test="conditionClassName != null and conditionClassName != ''">
+        <bind name="className" value="'%' + conditionClassName + '%'" />
+        and class_name like #{className}
+      </if>
+      <if test="conditionHeadmasterId != null">
+        and headmaster_id = #{conditionHeadmasterId}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectByHeadmasterId" parameterType="int" resultMap="BaseResultMap">
+    select * from class_info
+    where headmaster_id = #{headmasterId}
+  </select>
+
+  <select id="selectActiveClass" resultMap="BaseResultMap">
+    select * from class_info
+    where end_day is null
+  </select>
+
+  <select id="selectAllClass" resultMap="BaseResultMap">
+    select * from class_info
+  </select>
+</mapper>

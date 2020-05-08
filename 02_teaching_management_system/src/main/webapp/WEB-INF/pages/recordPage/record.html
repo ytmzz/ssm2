@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="/tm_system/css/main.css">-->
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+        table tbody tr:nth-child(odd){background:#F4F4F4;}
+        /*table tbody td:nth-child(even){color:#C00;}*/
+    </style>
+    <title>record</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="glyphicon glyphicon-th"></i> 数据列表</h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-inline" role="form" style="float:left;" id="conditionForm">
+                        <div class="form-group">
+                            <label for="conditionClassName">班级</label>
+                            <input class="form-control has-success" type="text" name="conditionClassName" id="conditionClassName" placeholder="请输入班级名">
+                        </div>
+                        <div class="form-group">
+                            <label for="conditionStudentName">学生名</label>
+                            <input class="form-control has-success" type="text" name="conditionStudentName" id="conditionStudentName" placeholder="请输入学生名">
+                        </div>
+                        <input type="hidden" name="conditionHeadmasterId" id="conditionHeadmasterId" />
+                        <button type="button" class="btn btn-warning" id="searchBtn"><i class="glyphicon glyphicon-search"></i> 查询</button>
+                    </form>
+                    <button type="button" class="btn btn-primary" id="addBtn" style="float:right;" onclick="window.location.href='/tm_system/record/jumpNewRecordPage'"><i class="glyphicon glyphicon-plus"></i> 新增</button>
+                    <br>
+                    <hr style="clear:both;">
+                    <div class="table-responsive">
+                        <form id="listForm">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th width="30">#</th>
+                                    <th>姓名</th>
+                                    <th>班级名称</th>
+                                    <th width="150">考勤次数</th>
+                                    <th width="150">正常考勤次数</th>
+                                    <th width="150">异常考勤次数</th>
+                                    <th width="150">考勤率</th>
+                                    <th width="100">详情</th>
+                                </tr>
+                                </thead>
+                                <tbody id="classInfoList">
+
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td colspan="7" align="center">
+                                        <ul class="pagination">
+
+                                        </ul>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 学生考勤详情模态框 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+                <input type="hidden" id="currentStudentId" />
+                <input type="hidden" id="currentClassId" />
+            </div>
+            <div class="modal-body">
+                <button type="button" class="btn btn-danger btn-xs" id="btnDel" style="float:right;margin-left:10px;"><i class=" glyphicon glyphicon-remove"></i> 删除</button>
+                <br />
+                <form id="recordForm">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="30">#</th>
+                            <th width="30"><input type="checkbox" id="selectAll" /></th>
+                            <th>考勤日期</th>
+                            <th>考勤结果</th>
+                            <th>修改/删除</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentRecordList">
+
+                    </tbody>
+                </table>
+                </form>
+            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        $("#addBtn").hide();
+        checkUserAndRole();
+
+        showClassList(1);
+
+        $("#searchBtn").click(function(){
+            showClassList(1);
+        });
+
+    });
+
+
+    function checkUserAndRole() {
+        $.ajax({
+            url:"/tm_system/login/getUserInfo",
+            type:"get",
+            dataType: "json",
+            async:false,
+            success:function (data) {
+                if(data.result) {
+                    if(data.role.roleName == "班主任") {
+                        $("#conditionHeadmasterId").val(data.user.userId);
+                        $("#addBtn").show();
+                    }
+                }
+            }
+        })
+    }
+
+    function showClassList(currentPage) {
+        var recordCondition = $("#conditionForm").serialize();
+        $.ajax({
+            url: "/tm_system/record/getRecordList",
+            type: "get",
+            data: $.param({"currentPage":currentPage}) + '&' + recordCondition,
+            dataType: "json",
+            success: function (data) {
+                if(data.result) {
+                    var recordList = "";
+                    $.each(data.recordVos, function(index, recordVo){
+                        recordList += "<tr>";
+                        recordList += "<td>" + (index+1) + "</td>";
+                        recordList += "<input type='hidden' name='studentIds' value='" + recordVo.student.studentId + "'/>";
+                        recordList += "<input type='hidden' name='classIds' value='" + recordVo.classInfo.classId + "'/>";
+                        recordList += "<td>" + recordVo.student.studentName + "</td>";
+                        recordList += "<td>" + recordVo.classInfo.className + "</td>";
+                        recordList += "<td>" + recordVo.count + "</td>";
+                        recordList += "<td>" + recordVo.normalCount + "</td>";
+                        recordList += "<td>" + (recordVo.count - recordVo.normalCount) + "</td>";
+                        recordList += "<td>" + toPercent(recordVo.normalCount / recordVo.count) + "</td>";
+                        recordList += "<td><button type='button' name='showStudentRecords' class='btn btn-info btn-xs'>查看</button></td>";
+                        recordList += "</tr>"
+                    });
+                    $("#classInfoList").html(recordList);
+
+                    $("button[name=showStudentRecords]").click(function () {
+                        var studentId = $(this).parents("tr").find("input[name=studentIds]").val();
+                        var classId = $(this).parents("tr").find("input[name=classIds]").val();
+                        var studentName = $(this).parents("tr").children("td").eq(1).text();
+                        var className = $(this).parents("tr").children("td").eq(2).text();
+                        $("#myModalLabel").text(studentName + " - " + className);
+                        $("#currentStudentId").val(studentId);
+                        $("#currentClassId").val(classId);
+
+                        getStudentRecords(studentId, classId);
+
+                        $("#myModal").on("hide.bs.modal",function(){
+                            showClassList(1);
+                        });
+                        $("#myModal").modal("show");
+                    });
+
+                    showPageList(data.pageBean);
+                }
+            }
+        });
+    }
+
+    function getStudentRecords(studentId, classId) {
+        $.ajax({
+            url:"/tm_system/record/getStudentRecords",
+            type:"get",
+            data:{"studentId":studentId, "classId":classId},
+            async:false,
+            dataType:"json",
+            success:function (data) {
+                if(data.result) {
+                    var recordList = "";
+                    $.each(data.records, function (index, record) {
+                        recordList += "<tr>";
+                        recordList += "<td>" + (index+1) + "</td>";
+                        recordList += "<td><input type='checkbox' class='recordIds' name='recordIds' value='" + record.recordId + "' /></td>";
+                        recordList += "<td>" + new Date(record.recordDate).toLocaleDateString() + "</td>";
+                        recordList += "<td>" + record.recordResult + "</td>";
+                        recordList += "<td><button type='button' class='btn btn-primary btn-xs' onclick='alterRecordById(this, " + record.recordId + ")'>修改</button> ";
+                        recordList += "<button type='button' class='btn btn-success btn-xs' disabled onclick='updateRecordById(this, " + record.recordId + ")'>保存</button> ";
+                        recordList += "<button type='button' class='btn btn-danger btn-xs' onclick='deleteRecordById(" + record.recordId + ")'>删除</button></td>";
+                        recordList += "</tr>";
+                    });
+
+                    $("#studentRecordList").html(recordList);
+
+                    $("#selectAll").prop("checked", false);
+                    $("#selectAll").click(function () {
+                        var flag = $(this).prop("checked");
+                        var records = $(".recordIds");
+                        for(var i = 0; i < records.length; i++) {
+                            records.eq(i).prop("checked", flag);
+                        }
+                    });
+
+                }
+            }
+        });
+    }
+    // 这个绑定删除方法，放在245行，在点击删除按钮（总）的时候会出现多次调用删除方法的情况
+    $("#btnDel").click(function () {
+        deleteRecords();
+    })
+
+    function showPageList(pageBean) {
+        var pages = pageBean.pages;
+        var currentPage = pageBean.currentPage;
+        var count = pageBean.count;
+        var pageList = "";
+        pageList += "<li " + (currentPage-1 <= 0 ? "class='disabled'" : "") + "><a onclick='showClassList(" + (currentPage-1) + ")'>上一页</a></li>";
+        // 0 <= pages < 5
+        if(pages < 5) {
+            for(var i = 1; i <= pages; i++) {
+                pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showClassList(" + i + ")'>" + i + "</a></li>";
+            }
+        } else {
+            // 居中显示
+            if(currentPage >= 3 && currentPage <= pages-2) {
+                for(var i = currentPage - 2; i <= currentPage + 2; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showClassList(" + i + ")'>" + i + "</a></li>";
+                }
+            } else {
+                // 显示后5条
+                for(var i = pages - 4; i <= pages; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showClassList(" + i + ")'>" + i + "</a></li>";
+                }
+            }
+        }
+        pageList += "<li " + (currentPage+1 >= pages ? "class='disabled'" : "") + "><a onclick='showClassList(" + (currentPage+1) + ")'>下一页</a></li>";
+
+        // "<li class=\"active\"><a href=\"#\">1 <span class=\"sr-only\">(current)</span></a></li>";
+        // "<li><a href=\"#\">下一页</a></li>";
+
+        $(".pagination").html(pageList);
+    }
+
+    function toPercent(point){
+        // if (point==0) {
+        //     return 0;
+        // }
+        var str=Number(point*100).toFixed();
+        if(!isNaN(str)) {
+            str+="%";
+        } else {
+            str = "/";
+        }
+
+        return str;
+    }
+
+    <!-- 考勤记录删除 -->
+    function deleteRecords() {
+        deleteRecord($("#recordForm").serialize());
+    }
+
+    function deleteRecordById(recordId){
+        deleteRecord("recordIds="+recordId);
+    }
+
+    function deleteRecord(recordIds) {
+        var flag = confirm("是否确认删除");
+        if(flag) {
+            $.ajax({
+                url: "/tm_system/record/deleteRecords",
+                type: "post",
+                data: recordIds,
+                dataType: "json",
+                success: function (result) {
+                    if(result) {
+                        alert("删除成功");
+                        getStudentRecords($("#currentStudentId").val(), $("#currentClassId").val());
+                    } else {
+                        alert("删除失败");
+                    }
+                }
+            });
+        }
+    }
+
+    function alterRecordById(witch, recordId) {
+        $(witch).attr("disabled", "disabled");
+        $(witch).next().removeAttr("disabled");
+        var message = "";
+        message += "<select>";
+        message += "<option selected>正常</option>";
+        message += "<option>迟到</option>";
+        message += "<option>事假</option>";
+        message += "<option>病假</option>";
+        message += "<option>旷课</option>";
+        message += "</select>";
+
+        $(witch).parents("tr").children().eq(3).html(message);
+    }
+
+    function updateRecordById(witch, recordId) {
+        $(witch).attr("disabled", "disabled");
+        $(witch).prev().removeAttr("disabled");
+
+        var recordResult = $(witch).parents("tr").children().eq(3).children().eq(0).val();
+        $.ajax({
+            url:"/tm_system/record/saveRecord",
+            data:{"recordId":recordId, "recordResult": recordResult},
+            type:"post",
+            success:function (result) {
+                if(result) {
+                    alert("修改成功");
+                } else {
+                    alert("修改失败");
+                }
+                getStudentRecords($("#currentStudentId").val(), $("#currentClassId").val());
+            }
+        });
+    }
+</script>
+</body>
+</html>

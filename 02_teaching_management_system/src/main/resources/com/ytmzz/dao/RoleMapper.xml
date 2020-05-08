@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.RoleMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.Role">
+    <id column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="role_name" jdbcType="CHAR" property="roleName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    role_id, role_name
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from role
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from role
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.Role">
+    insert into role (role_id, role_name)
+    values (#{roleId,jdbcType=INTEGER}, #{roleName,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.Role">
+    insert into role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="roleId != null">
+        role_id,
+      </if>
+      <if test="roleName != null">
+        role_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="roleId != null">
+        #{roleId,jdbcType=INTEGER},
+      </if>
+      <if test="roleName != null">
+        #{roleName,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.Role">
+    update role
+    <set>
+      <if test="roleName != null">
+        role_name = #{roleName,jdbcType=CHAR},
+      </if>
+    </set>
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.Role">
+    update role
+    set role_name = #{roleName,jdbcType=CHAR}
+    where role_id = #{roleId,jdbcType=INTEGER}
+  </update>
+
+  <!-- 其他 -->
+  <resultMap id="referenceMap" type="com.ytmzz.pojo.Role" extends="BaseResultMap">
+    <collection property="users" column="user_id" select="com.ytmzz.dao.UserMapper.selectByRoleId" fetchType="lazy"></collection>
+<!--    <collection property="permissions" column="permission_id" select=""></collection>-->
+  </resultMap>
+
+  <select id="selectByPrimaryKeyWithOthers" resultMap="referenceMap">
+    select * from role where role_id = #{roleId}
+  </select>
+
+  <select id="selectByUserId" resultMap="BaseResultMap">
+    select * from role where role_id in (
+        select role_id from user_role where user_id = #{userId}
+    )
+  </select>
+
+  <select id="selectByPermissionId" resultMap="BaseResultMap">
+    select * from role where role_id in (
+        select role_id from role_permission where permission_id = #{permissionId}
+    )
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    select * from role
+  </select>
+
+  <select id="getCountByCondition" parameterType="RoleCondition" resultType="int">
+    select count(1) from role
+    <where>
+      <if test="conditionRoleName != null and conditionRoleName != ''">
+        <bind name="role_name" value="'%' + conditionRoleName + '%'" />
+        and role_name like #{role_name}
+      </if>
+    </where>
+  </select>
+  <select id="selectByCondition" parameterType="RoleCondition" resultMap="BaseResultMap">
+    select * from role
+    <where>
+      <if test="conditionRoleName != null and conditionRoleName != ''">
+        <bind name="role_name" value="'%' + conditionRoleName + '%'" />
+        and role_name like #{role_name}
+      </if>
+    </where>
+  </select>
+</mapper>

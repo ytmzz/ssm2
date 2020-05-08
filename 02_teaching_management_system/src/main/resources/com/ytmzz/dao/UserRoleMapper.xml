@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.UserRoleMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.UserRole">
+    <id column="ur_id" jdbcType="INTEGER" property="urId" />
+    <result column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="user_status" jdbcType="CHAR" property="userStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ur_id, role_id, user_id, user_status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user_role
+    where ur_id = #{urId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user_role
+    where ur_id = #{urId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.UserRole">
+    insert into user_role (ur_id, role_id, user_id,
+      user_status)
+    values (#{urId,jdbcType=INTEGER}, #{roleId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+      #{userStatus,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.UserRole">
+    insert into user_role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="urId != null">
+        ur_id,
+      </if>
+      <if test="roleId != null">
+        role_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userStatus != null">
+        user_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="urId != null">
+        #{urId,jdbcType=INTEGER},
+      </if>
+      <if test="roleId != null">
+        #{roleId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userStatus != null">
+        #{userStatus,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.UserRole">
+    update user_role
+    <set>
+      <if test="roleId != null">
+        role_id = #{roleId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userStatus != null">
+        user_status = #{userStatus,jdbcType=CHAR},
+      </if>
+    </set>
+    where ur_id = #{urId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.UserRole">
+    update user_role
+    set role_id = #{roleId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      user_status = #{userStatus,jdbcType=CHAR}
+    where ur_id = #{urId,jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteByUserIdAndRoleId">
+    delete from user_role where user_id = #{userId} and role_id = #{roleId}
+  </delete>
+
+  <select id="selectBySelective" parameterType="UserRole" resultMap="BaseResultMap">
+    select * from user_role
+    where user_id = #{userId} and role_id = #{roleId}
+  </select>
+</mapper>

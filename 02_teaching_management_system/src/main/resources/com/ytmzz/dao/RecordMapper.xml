@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.RecordMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.Record">
+    <id column="record_id" jdbcType="INTEGER" property="recordId" />
+    <result column="class_id" jdbcType="INTEGER" property="classId" />
+    <result column="student_id" jdbcType="INTEGER" property="studentId" />
+    <result column="record_date" jdbcType="DATE" property="recordDate" />
+    <result column="record_result" jdbcType="CHAR" property="recordResult" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    record_id, class_id, student_id, record_date, record_result
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from record
+    where record_id = #{recordId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from record
+    where record_id = #{recordId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.Record">
+    insert into record (record_id, class_id, student_id, 
+      record_date, record_result)
+    values (#{recordId,jdbcType=INTEGER}, #{classId,jdbcType=INTEGER}, #{studentId,jdbcType=INTEGER}, 
+      #{recordDate,jdbcType=DATE}, #{recordResult,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.Record">
+    insert into record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="recordId != null">
+        record_id,
+      </if>
+      <if test="classId != null">
+        class_id,
+      </if>
+      <if test="studentId != null">
+        student_id,
+      </if>
+      <if test="recordDate != null">
+        record_date,
+      </if>
+      <if test="recordResult != null">
+        record_result,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="recordId != null">
+        #{recordId,jdbcType=INTEGER},
+      </if>
+      <if test="classId != null">
+        #{classId,jdbcType=INTEGER},
+      </if>
+      <if test="studentId != null">
+        #{studentId,jdbcType=INTEGER},
+      </if>
+      <if test="recordDate != null">
+        #{recordDate,jdbcType=DATE},
+      </if>
+      <if test="recordResult != null">
+        #{recordResult,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.Record">
+    update record
+    <set>
+      <if test="classId != null">
+        class_id = #{classId,jdbcType=INTEGER},
+      </if>
+      <if test="studentId != null">
+        student_id = #{studentId,jdbcType=INTEGER},
+      </if>
+      <if test="recordDate != null">
+        record_date = #{recordDate,jdbcType=DATE},
+      </if>
+      <if test="recordResult != null">
+        record_result = #{recordResult,jdbcType=CHAR},
+      </if>
+    </set>
+    where record_id = #{recordId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.Record">
+    update record
+    set class_id = #{classId,jdbcType=INTEGER},
+      student_id = #{studentId,jdbcType=INTEGER},
+      record_date = #{recordDate,jdbcType=DATE},
+      record_result = #{recordResult,jdbcType=CHAR}
+    where record_id = #{recordId,jdbcType=INTEGER}
+  </update>
+
+  <!-- 自定义 -->
+  <select id="findSelective" parameterType="Record" resultMap="BaseResultMap">
+    select * from record
+    <where>
+      <if test="studentId != null">
+      and student_id = #{studentId}
+      </if>
+      <if test="classId != null">
+        and class_id = #{classId}
+      </if>
+      <if test="recordResult != null">
+        and record_result = #{recordResult}
+      </if>
+    </where>
+  </select>
+
+  <select id="getCountSelective" parameterType="Record" resultType="int">
+    select count(1) from record
+    <where>
+      <if test="studentId != null">
+        and student_id = #{studentId}
+      </if>
+      <if test="classId != null">
+        and class_id = #{classId}
+      </if>
+      <if test="recordResult != null">
+        and record_result = #{recordResult}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectByStudentIdAndClassId" resultMap="BaseResultMap">
+    select * from record
+    where student_id = #{studentId} and class_id = #{classId}
+    order by record_date
+  </select>
+
+  <delete id="deleteByRecordIds" parameterType="int">
+    delete from record
+    where record_id in
+    <foreach collection="array" open="(" close=")" item="i" separator=",">
+      #{i}
+    </foreach>
+  </delete>
+  
+  <insert id="insertAllRecord" parameterType="Record">
+    insert into record
+    (class_id, student_id, record_date, record_result)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+        #{item.classId},
+        #{item.studentId},
+        #{item.recordDate},
+        #{item.recordResult}
+      )
+    </foreach>
+  </insert>
+</mapper>

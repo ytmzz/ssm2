@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="/tm_system/css/main.css">-->
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+        table tbody tr:nth-child(odd){background:#F4F4F4;}
+        /*table tbody td:nth-child(even){color:#C00;}*/
+    </style>
+    <title>class</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="glyphicon glyphicon-th"></i> 数据列表</h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-inline" role="form" style="float:left;" id="conditionForm">
+                        <div class="form-group has-feedback">
+                            <div class="input-group">
+                                <div class="input-group-addon">查询条件</div>
+                                <input class="form-control has-success" type="text" name="conditionClassName" placeholder="请输入班级名">
+                                <input type="hidden" name="conditionHeadmasterId" id="conditionHeadmasterId" />
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-warning" id="searchBtn"><i class="glyphicon glyphicon-search"></i> 查询</button>
+                    </form>
+                    <br>
+                    <hr style="clear:both;">
+                    <div class="table-responsive">
+                        <form id="listForm">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr >
+                                    <th width="30">#</th>
+                                    <th>班级名称</th>
+                                    <th>班主任</th>
+                                    <th>Java教师</th>
+                                    <th>Math教师</th>
+                                    <th>C++教师</th>
+                                    <th>开班时间</th>
+                                    <th>毕业时间</th>
+                                    <th>学生数</th>
+                                    <th width="100">添加学生</th>
+                                </tr>
+                                </thead>
+                                <tbody id="classInfoList">
+
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td colspan="10" align="center">
+                                        <ul class="pagination">
+
+                                        </ul>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 导入学生信息模态框 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">请选择导入学生的清单(.xlsx)</h4>
+            </div>
+<!--            <form method="post" enctype="multipart/form-data">-->
+                <div class="modal-body">
+                    <intut type="hidden" name="currentClassId" id="currentClassId" />
+                    <!-- 选择xlsx文件格式 -->
+                    <input type="file" name="studentsFile" id="studentsFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="upload">上传</button>
+                </div>
+<!--            </form>-->
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        checkUserAndRole();
+
+        showClassList(1);
+
+        $("#searchBtn").click(function(){
+            showClassList(1);
+        });
+
+        $("#upload").click(function () {
+            upload();
+        })
+    });
+
+    function upload() {
+        alert($("#studentsFile")[0].files[0]);
+
+        var formData = new FormData();
+        formData.append("classId", $("#currentClassId").val());
+        formData.append("file", $("#studentsFile")[0].files[0]);
+
+        $.ajax({
+            type: 'post',
+            url: "/tm_system/class/uploadStudentsFile",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if(data) {
+                    alert("添加成功");
+                } else {
+                    alert("添加失败");
+                }
+                location.href = "/tm_system/class/jumpClassPage";
+            }
+        });
+    }
+
+    function checkUserAndRole() {
+        $.ajax({
+            url:"/tm_system/login/getUserInfo",
+            type:"get",
+            dataType: "json",
+            async:false,
+            success:function (data) {
+                if(data.result) {
+                    if(data.role.roleName == "班主任") {
+                        $("#conditionHeadmasterId").val(data.user.userId);
+                    }
+                }
+            }
+        })
+    }
+
+    function showClassList(currentPage) {
+        var classCondition = $("#conditionForm").serialize();
+        $.ajax({
+            url: "/tm_system/class/getClassInfoList",
+            type: "get",
+            data: $.param({"currentPage":currentPage}) + '&' + classCondition,
+            dataType: "json",
+            success: function (data) {
+                if(data.result) {
+                    var classInfoList = "";
+                    $.each(data.classInfoVos, function(index, classInfoVo){
+                        classInfoList += "<tr>";
+                        classInfoList += "<td>" + (index+1) + "</td>";
+                        classInfoList += "<input type='hidden' name='classIds' value='" + classInfoVo.classInfo.classId + "'/>";
+                        classInfoList += "<td>" + classInfoVo.classInfo.className + "</td>";
+                        classInfoList += "<td>" + classInfoVo.classInfo.headmaster.headmasterName + "</td>";
+                        classInfoList += "<td>" + (classInfoVo.javaTeacher == null ? "无(未开课)" : classInfoVo.javaTeacher.teacherName) + "</td>";
+                        classInfoList += "<td>" + (classInfoVo.mathTeacher == null ? "无(未开课)" : classInfoVo.mathTeacher.teacherName) + "</td>";
+                        classInfoList += "<td>" + (classInfoVo.cppTeacher == null ? "无(未开课)" : classInfoVo.cppTeacher.teacherName) + "</td>";
+                        classInfoList += "<td>" + new Date(classInfoVo.classInfo.startDay).toLocaleDateString() + "</td>";
+                        classInfoList += "<td>" + (classInfoVo.classInfo.endDay == null ? "/" : new Date(classInfoVo.classInfo.endDay).toLocaleDateString()) + "</td>";
+                        classInfoList += "<td>" + classInfoVo.studentCount + "</td>";
+                        if(classInfoVo.classInfo.endDay == null) {
+                            classInfoList += "<td><button type='button' class='btn btn-xs' name='putStudentsBtn'>导入</button></td>";
+                        } else {
+                            classInfoList += "<td>已闭班</td>"
+                        }
+                        classInfoList += "</tr>";
+                    });
+                    $("#classInfoList").html(classInfoList);
+
+                    $("button[name=putStudentsBtn]").click(function () {
+                        var classId = $(this).parents("tr").find("input[type=hidden]").val();
+                        $("#currentClassId").val(classId);
+                        $("#myModal").modal("show");
+                    });
+
+                    showPageList(data.pageBean);
+                }
+            }
+        });
+    }
+
+    function showPageList(pageBean) {
+        var pages = pageBean.pages;
+        var currentPage = pageBean.currentPage;
+        var count = pageBean.count;
+        var pageList = "";
+        pageList += "<li " + (currentPage-1 <= 0 ? "class='disabled'" : "") + "><a onclick='showClassList(" + (currentPage-1) + ")'>上一页</a></li>";
+        // 0 <= pages < 5
+        if(pages < 5) {
+            for(var i = 1; i <= pages; i++) {
+                pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showClassList(" + i + ")'>" + i + "</a></li>";
+            }
+        } else {
+            // 居中显示
+            if(currentPage >= 3 && currentPage <= pages-2) {
+                for(var i = currentPage - 2; i <= currentPage + 2; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showClassList(" + i + ")'>" + i + "</a></li>";
+                }
+            } else {
+                // 显示后5条
+                for(var i = pages - 4; i <= pages; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showClassList(" + i + ")'>" + i + "</a></li>";
+                }
+            }
+        }
+        pageList += "<li " + (currentPage+1 >= pages ? "class='disabled'" : "") + "><a onclick='showClassList(" + (currentPage+1) + ")'>下一页</a></li>";
+
+        // "<li class=\"active\"><a href=\"#\">1 <span class=\"sr-only\">(current)</span></a></li>";
+        // "<li><a href=\"#\">下一页</a></li>";
+
+        $(".pagination").html(pageList);
+    }
+</script>
+</body>
+</html>

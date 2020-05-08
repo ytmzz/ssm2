@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keys" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/tm_system/css/login.css">
+    <title>login</title>
+    <style>
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <div><a class="navbar-brand" href="#" style="font-size:32px;">平台</a></div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <form class="form-signin" role="form" id="loginForm">
+        <h2 class="form-signin-heading"><i class="glyphicon glyphicon-user"></i> 用户登录</h2>
+        <div class="form-group has-success has-feedback">
+            <input type="text" class="form-control" name="userName" id="userName" placeholder="请输入登录账号" autofocus>
+            <span class="glyphicon glyphicon-user form-control-feedback"></span>
+        </div>
+        <div class="form-group has-success has-feedback">
+            <input type="text" class="form-control" name="userPassword" id="userPassword" placeholder="请输入登录密码" style="margin-top:10px;">
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        </div>
+        <div class="form-group has-success has-feedback">
+            <select class="form-control" name="roleId" id="roleId" style="margin-top:10px;">
+                <option value="-1">-------请选择登陆角色-------</option>
+            </select>
+        </div>
+        <a class="btn btn-lg btn-success btn-block" onclick="doLogin()" > 登录</a>
+    </form>
+</div>
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/layer/layer.js"></script>
+<script>
+    $.ajax({
+        url:"/tm_system/login/getAllRole",
+        type:"gey",
+        dataType:"json",
+        success:function(data) {
+            var message = "";
+            var roles = data.roles;
+            for(var i = 0; i < roles.length; i++) {
+                message += "<option value='" + roles[i].roleId + "'>" + roles[i].roleName + "</option>";
+            }
+            $("#roleId").append(message);
+        }
+    });
+
+    function doLogin() {
+        var userName = $("#userName").val();
+        var userPassword = $("#userPassword").val();
+        if(userName == "") {
+            layer.msg("用户名不能为空", {icon:2, time:500});
+            return ;
+        }
+        if(userPassword == "") {
+            layer.msg("密码不能为空", {icon:2, time:500});
+            return ;
+        }
+        $.ajax({
+            url:"/tm_system/login/checkUser",
+            type:"post",
+            data:$("#loginForm").serialize(),
+            dataType: "json",
+            success:function(data) {
+                if(data.result) {
+                    if(data.status == "已完善") {
+                        layer.msg("登陆成功", {icon: 1, time: 1000}, function () {
+                            location.href = "/tm_system/login/jumpMainPage";
+                        });
+                    } else {
+                        var roleId = $("#roleId").val();
+                        location.href = "/tm_system/login/JumpUpdateUserInfoPage"
+                    }
+                } else {
+                    layer.msg("登陆失败", {icon:5, time:1000});
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

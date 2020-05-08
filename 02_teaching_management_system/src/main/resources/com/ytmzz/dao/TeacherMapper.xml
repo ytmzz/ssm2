@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.TeacherMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.Teacher">
+    <id column="teacher_id" jdbcType="INTEGER" property="teacherId" />
+    <result column="teacher_name" jdbcType="CHAR" property="teacherName" />
+    <result column="teacher_age" jdbcType="INTEGER" property="teacherAge" />
+    <result column="teacher_hiredate" jdbcType="TIMESTAMP" property="teacherHiredate" />
+    <result column="teacher_status" jdbcType="CHAR" property="teacherStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    teacher_id, teacher_name, teacher_age, teacher_hiredate, teacher_status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from teacher
+    where teacher_id = #{teacherId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from teacher
+    where teacher_id = #{teacherId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.Teacher">
+    insert into teacher (teacher_id, teacher_name, teacher_age, 
+      teacher_hiredate, teacher_status)
+    values (#{teacherId,jdbcType=INTEGER}, #{teacherName,jdbcType=CHAR}, #{teacherAge,jdbcType=INTEGER}, 
+      #{teacherHiredate,jdbcType=TIMESTAMP}, #{teacherStatus,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.Teacher">
+    insert into teacher
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="teacherId != null">
+        teacher_id,
+      </if>
+      <if test="teacherName != null">
+        teacher_name,
+      </if>
+      <if test="teacherAge != null">
+        teacher_age,
+      </if>
+      <if test="teacherHiredate != null">
+        teacher_hiredate,
+      </if>
+      <if test="teacherStatus != null">
+        teacher_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="teacherId != null">
+        #{teacherId,jdbcType=INTEGER},
+      </if>
+      <if test="teacherName != null">
+        #{teacherName,jdbcType=CHAR},
+      </if>
+      <if test="teacherAge != null">
+        #{teacherAge,jdbcType=INTEGER},
+      </if>
+      <if test="teacherHiredate != null">
+        #{teacherHiredate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="teacherStatus != null">
+        #{teacherStatus,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.Teacher">
+    update teacher
+    <set>
+      <if test="teacherName != null">
+        teacher_name = #{teacherName,jdbcType=CHAR},
+      </if>
+      <if test="teacherAge != null">
+        teacher_age = #{teacherAge,jdbcType=INTEGER},
+      </if>
+      <if test="teacherHiredate != null">
+        teacher_hiredate = #{teacherHiredate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="teacherStatus != null">
+        teacher_status = #{teacherStatus,jdbcType=CHAR},
+      </if>
+    </set>
+    where teacher_id = #{teacherId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.Teacher">
+    update teacher
+    set teacher_name = #{teacherName,jdbcType=CHAR},
+      teacher_age = #{teacherAge,jdbcType=INTEGER},
+      teacher_hiredate = #{teacherHiredate,jdbcType=TIMESTAMP},
+      teacher_status = #{teacherStatus,jdbcType=CHAR}
+    where teacher_id = #{teacherId,jdbcType=INTEGER}
+  </update>
+
+
+  <!-- 自定义 -->
+  <select id="selectAll" resultMap="BaseResultMap">
+    select * from teacher
+  </select>
+  <select id="selectSelective" resultMap="BaseResultMap" parameterType="Teacher">
+    select * from teacher
+    <where>
+      <if test="teacherName != null and teacherName != ''">
+        <bind name="teacherName" value="'%' + teacherName + '%'" />
+        and teacher_name like #{teacherName}
+      </if>
+      <if test="teacherStatus != null and teacherStatus != ''">
+        and teacher_status = #{teacherStatus}
+      </if>
+    </where>
+  </select>
+
+  <select id="isExist" resultType="int" parameterType="int">
+    select 1 from teacher where teacher_id = #{teacherId}
+  </select>
+</mapper>

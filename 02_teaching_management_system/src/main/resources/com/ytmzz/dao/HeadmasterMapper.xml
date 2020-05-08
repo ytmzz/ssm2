@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ytmzz.dao.HeadmasterMapper">
+  <resultMap id="BaseResultMap" type="com.ytmzz.pojo.Headmaster">
+    <id column="headmaster_id" jdbcType="INTEGER" property="headmasterId" />
+    <result column="headmaster_name" jdbcType="CHAR" property="headmasterName" />
+    <result column="headmaster_age" jdbcType="INTEGER" property="headmasterAge" />
+    <result column="headmaster_hiredate" jdbcType="TIMESTAMP" property="headmasterHiredate" />
+    <result column="headmaster_status" jdbcType="CHAR" property="headmasterStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    headmaster_id, headmaster_name, headmaster_age, headmaster_hiredate, headmaster_status
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from headmaster
+    where headmaster_id = #{headmasterId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from headmaster
+    where headmaster_id = #{headmasterId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ytmzz.pojo.Headmaster">
+    insert into headmaster (headmaster_id, headmaster_name, headmaster_age, 
+      headmaster_hiredate, headmaster_status)
+    values (#{headmasterId,jdbcType=INTEGER}, #{headmasterName,jdbcType=CHAR}, #{headmasterAge,jdbcType=INTEGER}, 
+      #{headmasterHiredate,jdbcType=TIMESTAMP}, #{headmasterStatus,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytmzz.pojo.Headmaster">
+    insert into headmaster
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="headmasterId != null">
+        headmaster_id,
+      </if>
+      <if test="headmasterName != null">
+        headmaster_name,
+      </if>
+      <if test="headmasterAge != null">
+        headmaster_age,
+      </if>
+      <if test="headmasterHiredate != null">
+        headmaster_hiredate,
+      </if>
+      <if test="headmasterStatus != null">
+        headmaster_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="headmasterId != null">
+        #{headmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="headmasterName != null">
+        #{headmasterName,jdbcType=CHAR},
+      </if>
+      <if test="headmasterAge != null">
+        #{headmasterAge,jdbcType=INTEGER},
+      </if>
+      <if test="headmasterHiredate != null">
+        #{headmasterHiredate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="headmasterStatus != null">
+        #{headmasterStatus,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytmzz.pojo.Headmaster">
+    update headmaster
+    <set>
+      <if test="headmasterName != null">
+        headmaster_name = #{headmasterName,jdbcType=CHAR},
+      </if>
+      <if test="headmasterAge != null">
+        headmaster_age = #{headmasterAge,jdbcType=INTEGER},
+      </if>
+      <if test="headmasterHiredate != null">
+        headmaster_hiredate = #{headmasterHiredate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="headmasterStatus != null">
+        headmaster_status = #{headmasterStatus,jdbcType=CHAR},
+      </if>
+    </set>
+    where headmaster_id = #{headmasterId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytmzz.pojo.Headmaster">
+    update headmaster
+    set headmaster_name = #{headmasterName,jdbcType=CHAR},
+      headmaster_age = #{headmasterAge,jdbcType=INTEGER},
+      headmaster_hiredate = #{headmasterHiredate,jdbcType=TIMESTAMP},
+      headmaster_status = #{headmasterStatus,jdbcType=CHAR}
+    where headmaster_id = #{headmasterId,jdbcType=INTEGER}
+  </update>
+
+  <!-- 自定义 -->
+  <select id="selectAll" resultMap="BaseResultMap">
+    select * from headmaster
+  </select>
+  <select id="selectSelective" resultMap="BaseResultMap">
+    select * from headmaster
+    <where>
+      <if test="headmasterName != null and headmasterName != ''">
+        <bind name="headmasterName" value="'%' + headmasterName + '%'" />
+        and headmaster_name like #{headmasterName}
+      </if>
+      <if test="headmasterStatus != null and headmasterStatus != ''">
+        and headmaster_status = #{headmasterStatus}
+      </if>
+    </where>
+  </select>
+
+  <select id="isExist" resultType="int" parameterType="int">
+    select 1 from headmaster where headmaster_id = #{headmasterId}
+  </select>
+</mapper>
