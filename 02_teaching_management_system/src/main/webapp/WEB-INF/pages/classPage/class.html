@@ -133,8 +133,6 @@
     });
 
     function upload() {
-        alert($("#studentsFile")[0].files[0]);
-
         var formData = new FormData();
         formData.append("classId", $("#currentClassId").val());
         formData.append("file", $("#studentsFile")[0].files[0]);
@@ -148,9 +146,9 @@
             contentType: false,
             success: function (data) {
                 if(data) {
-                    alert("添加成功");
+                    alert("导入成功");
                 } else {
-                    alert("添加失败");
+                    alert("导入失败");
                 }
                 location.href = "/tm_system/class/jumpClassPage";
             }
@@ -196,7 +194,7 @@
                         classInfoList += "<td>" + (classInfoVo.classInfo.endDay == null ? "/" : new Date(classInfoVo.classInfo.endDay).toLocaleDateString()) + "</td>";
                         classInfoList += "<td>" + classInfoVo.studentCount + "</td>";
                         if(classInfoVo.classInfo.endDay == null) {
-                            classInfoList += "<td><button type='button' class='btn btn-xs' name='putStudentsBtn'>导入</button></td>";
+                            classInfoList += "<td><button type='button' class='btn btn-info btn-xs' name='putStudentsBtn'>导入</button></td>";
                         } else {
                             classInfoList += "<td>已闭班</td>"
                         }

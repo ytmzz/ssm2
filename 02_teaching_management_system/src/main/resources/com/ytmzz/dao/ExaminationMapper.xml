@@ -90,4 +90,17 @@
     select * from examination
     where student_id = #{studentId} and course_id = #{courseId}
   </select>
+
+  <resultMap id="referenceMap" type="com.ytmzz.pojo.Examination" extends="BaseResultMap">
+    <association property="course" column="course_id" fetchType="lazy" select="com.ytmzz.dao.CourseMapper.selectByPrimaryKey" />
+    <association property="student" column="student_id" fetchType="lazy" select="com.ytmzz.dao.StudentMapper.selectByPrimaryKey" />
+  </resultMap>
+
+  <select id="selectByClassIdAndCourseId" resultMap="referenceMap">
+    select s.student_id, e.examination_id, (select #{courseId}) as course_id, e.examination_score
+    from (select student_id from student
+        where class_id = #{classId}
+        ) s left join examination e on s.student_id = e.student_id
+    and course_id = #{courseId}
+  </select>
 </mapper>

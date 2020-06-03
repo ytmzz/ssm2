@@ -26,28 +26,8 @@ public class LoginController {
 //    }
 
     @RequestMapping("/jumpMainPage")
-    public String jumpMainPage(HttpSession session) {
+    public String jumpMainPage() {
         return "main";
-    }
-
-
-    // 未完成
-    @RequestMapping("/JumpUpdateUserInfoPage")
-    private String JumpUpdateUserInfoPage(HttpSession session) {
-        Role role = (Role) session.getAttribute("loginRole");
-        switch (role.getRoleId()) {
-            case 1:
-                return "userInfoPage/administratorInfo";
-            case 2:
-                return "userInfoPage/studentInfo";
-            case 3:
-                return "userInfoPage/teacherInfo";
-            case 4:
-                return "userInfoPage/supervisorInfo";
-            case 7:
-                return "userInfoPage/headmasterInfo";
-        }
-        return "redirect:/logout";
     }
 
     @RequestMapping("/checkUser")

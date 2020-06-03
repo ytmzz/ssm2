@@ -90,6 +90,7 @@
                 <h4 class="modal-title" id="myModalLabel"></h4>
                 <input type="hidden" id="currentStudentId" />
                 <input type="hidden" id="currentClassId" />
+                <input type="hidden" id="currentHeadmasterId" />
             </div>
             <div class="modal-body">
                 <button type="button" class="btn btn-danger btn-xs" id="btnDel" style="float:right;margin-left:10px;"><i class=" glyphicon glyphicon-remove"></i> 删除</button>
@@ -178,6 +179,7 @@
                         recordList += "<td>" + (index+1) + "</td>";
                         recordList += "<input type='hidden' name='studentIds' value='" + recordVo.student.studentId + "'/>";
                         recordList += "<input type='hidden' name='classIds' value='" + recordVo.classInfo.classId + "'/>";
+                        recordList += "<input type='hidden' name='headmasterIds' value='" + recordVo.classInfo.headmasterId + "'/>";
                         recordList += "<td>" + recordVo.student.studentName + "</td>";
                         recordList += "<td>" + recordVo.classInfo.className + "</td>";
                         recordList += "<td>" + recordVo.count + "</td>";
@@ -192,11 +194,13 @@
                     $("button[name=showStudentRecords]").click(function () {
                         var studentId = $(this).parents("tr").find("input[name=studentIds]").val();
                         var classId = $(this).parents("tr").find("input[name=classIds]").val();
+                        var headmasterId = $(this).parents("tr").find("input[name=headmasterIds]").val();
                         var studentName = $(this).parents("tr").children("td").eq(1).text();
                         var className = $(this).parents("tr").children("td").eq(2).text();
                         $("#myModalLabel").text(studentName + " - " + className);
                         $("#currentStudentId").val(studentId);
                         $("#currentClassId").val(classId);
+                        $("#currentHeadmasterId").val(headmasterId);
 
                         getStudentRecords(studentId, classId);
 
@@ -228,9 +232,9 @@
                         recordList += "<td><input type='checkbox' class='recordIds' name='recordIds' value='" + record.recordId + "' /></td>";
                         recordList += "<td>" + new Date(record.recordDate).toLocaleDateString() + "</td>";
                         recordList += "<td>" + record.recordResult + "</td>";
-                        recordList += "<td><button type='button' class='btn btn-primary btn-xs' onclick='alterRecordById(this, " + record.recordId + ")'>修改</button> ";
-                        recordList += "<button type='button' class='btn btn-success btn-xs' disabled onclick='updateRecordById(this, " + record.recordId + ")'>保存</button> ";
-                        recordList += "<button type='button' class='btn btn-danger btn-xs' onclick='deleteRecordById(" + record.recordId + ")'>删除</button></td>";
+                        recordList += "<td><button type='button' class='alterBtn btn btn-primary btn-xs' onclick='alterRecordById(this, " + record.recordId + ")'>修改</button> ";
+                        recordList += "<button type='button' class='updateBtn btn btn-success btn-xs' disabled onclick='updateRecordById(this, " + record.recordId + ")'>保存</button> ";
+                        recordList += "<button type='button' class='deleteBtn btn btn-danger btn-xs' onclick='deleteRecordById(" + record.recordId + ")'>删除</button></td>";
                         recordList += "</tr>";
                     });
 
@@ -245,6 +249,7 @@
                         }
                     });
 
+                    checkupdateRole(data.userId);
                 }
             }
         });
@@ -252,7 +257,18 @@
     // 这个绑定删除方法，放在245行，在点击删除按钮（总）的时候会出现多次调用删除方法的情况
     $("#btnDel").click(function () {
         deleteRecords();
-    })
+    });
+
+    // 判断当前查看用户是否为学生班主任，否则隐藏四个修改按钮
+    function checkupdateRole(userId) {
+        var currentHeadmasterId = $("#currentHeadmasterId").val();
+        if(userId != currentHeadmasterId) {
+            $(".alterBtn").hide();
+            $(".updateBtn").hide();
+            $(".deleteBtn").hide();
+            $("#btnDel").hide();
+        }
+    }
 
     function showPageList(pageBean) {
         var pages = pageBean.pages;

@@ -84,4 +84,26 @@
   <select id="isExist" resultType="int">
     select 1 from supervisor where supervisor_id = #{supervisorId}
   </select>
+
+  <select id="getCountByCondition" parameterType="SupervisorCondition" resultType="int">
+    select count(1)
+    from supervisor
+    <where>
+      <if test="conditionSupervisorName != null and conditionSupervisorName != ''">
+        <bind name="supervisorName" value="'%' + conditionSupervisorName + '%'" />
+        and supervisor_name like #{supervisorName}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectByCondition" parameterType="SupervisorCondition" resultMap="BaseResultMap">
+    select *
+    from supervisor
+    <where>
+      <if test="conditionSupervisorName != null and conditionSupervisorName != ''">
+        <bind name="supervisorName" value="'%' + conditionSupervisorName + '%'" />
+        and supervisor_name like #{supervisorName}
+      </if>
+    </where>
+  </select>
 </mapper>

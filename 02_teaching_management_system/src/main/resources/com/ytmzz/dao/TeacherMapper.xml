@@ -112,4 +112,26 @@
   <select id="isExist" resultType="int" parameterType="int">
     select 1 from teacher where teacher_id = #{teacherId}
   </select>
+
+  <select id="getCountByCondition" parameterType="TeacherCondition" resultType="int">
+    select count(1)
+    from teacher
+    <where>
+      <if test="conditionTeacherName != null and conditionTeacherName != ''">
+        <bind name="teacherName" value="'%' + conditionTeacherName + '%'" />
+        and teacher_name like #{teacherName}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectByCondition" parameterType="TeacherCondition" resultMap="BaseResultMap">
+    select *
+    from teacher
+    <where>
+      <if test="conditionTeacherName != null and conditionTeacherName != ''">
+        <bind name="teacherName" value="'%' + conditionTeacherName + '%'" />
+        and teacher_name like #{teacherName}
+      </if>
+    </where>
+  </select>
 </mapper>

@@ -152,8 +152,6 @@ public class ClassController {
         String realPath = request.getServletContext().getRealPath("/upload/student");
         // 文件保存路径
         String path = UploadFile.saveFile(file, realPath);
-        System.out.println(path);
-        System.out.println(classId);
         boolean flag = classInfoService.importStudent(path, classId);
         return flag;
     }

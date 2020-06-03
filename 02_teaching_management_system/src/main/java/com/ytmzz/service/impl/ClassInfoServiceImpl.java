@@ -186,6 +186,7 @@ public class ClassInfoServiceImpl implements ClassInfoService {
                 UserRole userRole = new UserRole();
                 userRole.setUserId(user.getUserId());
                 userRole.setRoleId(roleId);
+                userRole.setUserStatus("已完善");
                 userRoleMapper.insertSelective(userRole);
                 // 添加student
                 Student student = map.get(userName);
@@ -280,5 +281,10 @@ public class ClassInfoServiceImpl implements ClassInfoService {
     @Override
     public List<ClassInfo> getAllClassInfo() {
         return classInfoMapper.selectAllClass();
+    }
+
+    @Override
+    public List<ClassInfo> getActiveClassInfo() {
+        return classInfoMapper.selectActiveClass();
     }
 }

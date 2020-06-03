@@ -195,7 +195,7 @@ public class UserController {
     // 以下修改密码
     @RequestMapping("/jumpChangePasswordPage")
     public String jumpChangePasswordPage() {
-        return "userInfoPage/changePassword";
+        return "updateUserInfoPage/changePassword";
     }
 
     @RequestMapping("/checkPassword")
@@ -227,24 +227,5 @@ public class UserController {
         }
 
         return flag;
-    }
-
-    @RequestMapping("/jumpUserInfoPage")
-    public String jumpUserInfoPage(HttpSession session) {
-        Role role = (Role) session.getAttribute("loginRole");
-
-        switch (role.getRoleId()) {
-            case 1:
-                return "userInfoPage/administratorInfo";
-            case 2:
-                return "userInfoPage/studentInfo";
-            case 3:
-                return "userInfoPage/teacherInfo";
-            case 4:
-                return "userInfoPage/supervisorInfo";
-            case 7:
-                return "userInfoPage/headmasterInfo";
-        }
-        return "redirect:/login/jumpMainPage";
     }
 }

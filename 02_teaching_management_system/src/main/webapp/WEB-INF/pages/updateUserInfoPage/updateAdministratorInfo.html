@@ -16,7 +16,7 @@
             cursor:pointer;
         }
     </style>
-    <title>administratorInfo</title>
+    <title>updateAdministratorInfo</title>
 </head>
 
 <body>
@@ -47,8 +47,6 @@
 <script src="/tm_system/script/docs.min.js"></script>
 <script type="text/javascript">
     $(function () {
-        getUserInfo();
-
         getAdministratorInfo();
 
         $("#updateBtn").click(function(){
@@ -65,25 +63,10 @@
             success:function (data) {
                 if(data.result) {
                     $("#administratorName").val(data.info.administratorName);
-                }
-            }
-        });
-    }
-
-    function getUserInfo() {
-        $.ajax({
-            url:"/tm_system/login/getUserInfo",
-            dataType:"json",
-            type:"get",
-            async:false,
-            success:function (data) {
-                if(data.result) {
-                    $("#administratorId").val(data.user.userId);
+                    $("#administratorId").val(data.info.administratorId);
                 } else {
                     alert("信息获取失败");
-                    if(data.status == "未完善") {
-                        location.href = "/tm_system/logout";
-                    }
+                    location.href = "/tm_system/userInfo/jumpUserInfoShowPage";
                 }
             }
         });
@@ -91,7 +74,6 @@
 
     function updateInfo() {
         if(checkName()) {
-            //$("#addForm").submit();
             $.ajax({
                 url:"/tm_system/userInfo/updateAdministratorInfo",
                 type:"post",
@@ -99,11 +81,10 @@
                 success:function(result){
                     if(result){
                         alert("更新成功");
-                        location.href = "/tm_system/login/jumpMainPage";
                     } else {
                         alert("更新失败");
-                        location.href = "/tm_system/logout";
                     }
+                    location.href = "/tm_system/userInfo/jumpUserInfoShowPage";
                 }
             });
         }

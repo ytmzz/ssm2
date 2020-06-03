@@ -80,14 +80,14 @@
             dataType: "json",
             success:function(data) {
                 if(data.result) {
-                    if(data.status == "已完善") {
+                    // if(data.status == "已完善") {
                         layer.msg("登陆成功", {icon: 1, time: 1000}, function () {
                             location.href = "/tm_system/login/jumpMainPage";
                         });
-                    } else {
-                        var roleId = $("#roleId").val();
-                        location.href = "/tm_system/login/JumpUpdateUserInfoPage"
-                    }
+                    // } else {
+                    //     var roleId = $("#roleId").val();
+                    //     location.href = "/tm_system/login/JumpUpdateUserInfoPage"
+                    // }
                 } else {
                     layer.msg("登陆失败", {icon:5, time:1000});
                 }

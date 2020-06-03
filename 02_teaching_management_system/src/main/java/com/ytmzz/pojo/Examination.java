@@ -1,5 +1,8 @@
 package com.ytmzz.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(value = {"handler"})
 public class Examination {
     private Integer examinationId;
 
@@ -8,6 +11,26 @@ public class Examination {
     private Integer studentId;
 
     private Double examinationScore;
+
+    private Course course;
+
+    private Student student;
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
 
     public Integer getExaminationId() {
         return examinationId;
@@ -48,6 +71,8 @@ public class Examination {
                 ", courseId=" + courseId +
                 ", studentId=" + studentId +
                 ", examinationScore=" + examinationScore +
+                ", course=" + course +
+                ", student=" + student +
                 '}';
     }
 }

@@ -22,4 +22,6 @@ public interface ExaminationMapper {
 
     public Examination selectByStudentIdAndCourseId(
             @Param("studentId") Integer studentId, @Param("courseId") Integer courseId);
+
+    public List<Examination> selectByClassIdAndCourseId(@Param("classId") Integer classId, @Param("courseId") Integer courseId);
 }

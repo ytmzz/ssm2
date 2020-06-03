@@ -24,7 +24,7 @@ public class StudentController {
 
     @RequestMapping("/jumpStudentPage")
     public String jumpStudentPage() {
-        return "studentPage/student";
+        return "personnelPage/student";
     }
 
     @RequestMapping("/getStudentList")

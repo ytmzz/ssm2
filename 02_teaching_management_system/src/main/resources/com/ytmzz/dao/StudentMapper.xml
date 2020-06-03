@@ -159,4 +159,12 @@
   <resultMap id="referenceMap" type="com.ytmzz.pojo.Student" extends="BaseResultMap">
     <association property="classInfo" column="class_id" select="com.ytmzz.dao.ClassInfoMapper.selectByPrimaryKey" fetchType="lazy" />
   </resultMap>
+
+  <select id="getCountByHeadmasterId" resultType="int" parameterType="int">
+    select count(1) from student
+    where class_id in (
+        select class_id from class_info
+        where headmaster_id = #{headmasterId}
+    )
+  </select>
 </mapper>

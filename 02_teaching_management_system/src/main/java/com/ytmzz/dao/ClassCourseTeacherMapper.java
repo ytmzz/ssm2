@@ -18,4 +18,6 @@ public interface ClassCourseTeacherMapper {
     int updateByPrimaryKey(ClassCourseTeacher record);
 
     public List<ClassCourseTeacher> selectSelective(ClassCourseTeacher record);
+
+    public Integer getCountSelective();
 }

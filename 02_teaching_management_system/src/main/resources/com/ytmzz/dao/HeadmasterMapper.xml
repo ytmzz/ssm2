@@ -111,4 +111,26 @@
   <select id="isExist" resultType="int" parameterType="int">
     select 1 from headmaster where headmaster_id = #{headmasterId}
   </select>
+
+  <select id="getCountByCondition" parameterType="HeadmasterCondition" resultType="int">
+    select count(1)
+    from headmaster
+    <where>
+      <if test="conditionHeadmasterName != null and conditionHeadmasterName != ''">
+        <bind name="headmasterName" value="'%' + conditionHeadmasterName + '%'" />
+        and headmaster_name like #{headmasterName}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectByCondition" parameterType="HeadmasterCondition" resultMap="BaseResultMap">
+    select *
+    from headmaster
+    <where>
+      <if test="conditionHeadmasterName != null and conditionHeadmasterName != ''">
+        <bind name="headmasterName" value="'%' + conditionHeadmasterName + '%'" />
+        and headmaster_name like #{headmasterName}
+      </if>
+    </where>
+  </select>
 </mapper>

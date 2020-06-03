@@ -29,16 +29,17 @@ public class RecordServiceImpl implements RecordService {
     private RecordMapper recordMapper;
     @Autowired
     private UserMapper userMapper;
-    @Autowired
-    private RoleMapper roleMapper;
 
     @Override
     public List<RecordVo> getRecordVoByCondition(PageBean pageBean, RecordCondition recordCondition) {
         // 设置pageBean
         StudentCondition studentCondition = new StudentCondition();
         studentCondition.setConditionStudentName(recordCondition.getConditionStudentName());
+        // 查询并设置classId
+        int classId = classInfoMapper.selectByHeadmasterId(recordCondition.getConditionHeadmasterId()).getClassId();
+        studentCondition.setConditionClassId(classId);
         //studentCondition.setConditionClassName(recordCondition.getConditionClassName());
-        pageBean.setCount(studentMapper.getCountByCondition(studentCondition));
+        pageBean.setCount( studentMapper.getCountByHeadmasterId(recordCondition.getConditionHeadmasterId()) );
         if(pageBean.getCurrentPage() > pageBean.getPages()) {
             pageBean.setCurrentPage(pageBean.getPages());
         }
@@ -51,7 +52,6 @@ public class RecordServiceImpl implements RecordService {
         classCondition.setConditionHeadmasterId(recordCondition.getConditionHeadmasterId());
         classCondition.setConditionClassName(recordCondition.getConditionClassName());
         List<ClassInfo> classInfos = classInfoMapper.selectByCondition(classCondition);
-
         // 无法查询到转班前的信息
         List<RecordVo> recordVos = new ArrayList<>();
         for (ClassInfo classInfo : classInfos) {
@@ -59,7 +59,7 @@ public class RecordServiceImpl implements RecordService {
                 // 获取学生所在班级
                 //ClassInfo stuClassInfo = classInfoMapper.selectByPrimaryKey(student.getClassId());
                 // 选取学生所在的班级，解决班级的条件查询
-                if(student.getClassId() == classInfo.getClassId()) {
+                //if(student.getClassId() == classInfo.getClassId()) {
                     Record record = new Record();
                     record.setClassId(classInfo.getClassId());
                     record.setStudentId(student.getStudentId());
@@ -72,10 +72,10 @@ public class RecordServiceImpl implements RecordService {
                     recordVo.setCount(count);
                     recordVo.setNormalCount(normalCount);
                     recordVos.add(recordVo);
-                }
+                //}
             }
         }
-
+        //pageBean.setCount(recordVos.size());
         return recordVos;
     }
 

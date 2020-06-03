@@ -1,5 +1,6 @@
 package com.ytmzz.dao;
 
+import com.ytmzz.condition.HeadmasterCondition;
 import com.ytmzz.pojo.Headmaster;
 
 import java.util.List;
@@ -22,4 +23,8 @@ public interface HeadmasterMapper {
     public List<Headmaster> selectSelective(Headmaster headmaster);
 
     public Integer isExist(Integer headmasterId);
+
+    public Integer getCountByCondition(HeadmasterCondition headmasterCondition);
+
+    public List<Headmaster> selectByCondition(HeadmasterCondition headmasterCondition);
 }

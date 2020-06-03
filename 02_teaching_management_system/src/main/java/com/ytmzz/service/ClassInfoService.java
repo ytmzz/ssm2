@@ -25,4 +25,6 @@ public interface ClassInfoService {
     public ShiftTransferInfoVo getShiftTransferInfo(Integer userId);
 
     public List<ClassInfo> getAllClassInfo();
+
+    public List<ClassInfo> getActiveClassInfo();
 }

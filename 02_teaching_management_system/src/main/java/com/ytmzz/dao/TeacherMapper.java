@@ -1,5 +1,6 @@
 package com.ytmzz.dao;
 
+import com.ytmzz.condition.TeacherCondition;
 import com.ytmzz.pojo.Teacher;
 
 import java.util.List;
@@ -22,4 +23,8 @@ public interface TeacherMapper {
     public List<Teacher> selectSelective(Teacher teacher);
 
     public Integer isExist(Integer teacherId);
+
+    public Integer getCountByCondition(TeacherCondition teacherCondition);
+
+    public List<Teacher> selectByCondition(TeacherCondition teacherCondition);
 }

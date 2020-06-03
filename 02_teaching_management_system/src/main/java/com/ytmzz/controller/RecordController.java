@@ -55,11 +55,13 @@ public class RecordController {
 
     @RequestMapping("/getStudentRecords")
     @ResponseBody
-    public Map<String, Object> getRecordList(Integer studentId, Integer classId) {
+    public Map<String, Object> getRecordList(HttpSession session, Integer studentId, Integer classId) {
         Map<String, Object> map = new HashMap<>();
 
         try {
+            User user = (User) session.getAttribute("loginUser");
             List<Record> records = recordService.getStudentRecords(studentId, classId);
+            map.put("userId", user.getUserId());
             map.put("records", records);
             map.put("result", true);
         } catch (Exception e) {

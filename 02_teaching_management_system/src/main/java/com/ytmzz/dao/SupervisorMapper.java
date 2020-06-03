@@ -1,6 +1,9 @@
 package com.ytmzz.dao;
 
+import com.ytmzz.condition.SupervisorCondition;
 import com.ytmzz.pojo.Supervisor;
+
+import java.util.List;
 
 public interface SupervisorMapper {
     int deleteByPrimaryKey(Integer supervisorId);
@@ -16,4 +19,8 @@ public interface SupervisorMapper {
     int updateByPrimaryKey(Supervisor record);
 
     public Integer isExist(Integer supervisorId);
+
+    public Integer getCountByCondition(SupervisorCondition supervisorCondition);
+
+    public List<Supervisor> selectByCondition(SupervisorCondition supervisorCondition);
 }

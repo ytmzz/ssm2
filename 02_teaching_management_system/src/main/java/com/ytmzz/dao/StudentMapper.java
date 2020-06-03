@@ -27,4 +27,6 @@ public interface StudentMapper {
     public int getCountByCondition(StudentCondition studentCondition);
 
     public List<Student> selectByClassId(Integer classId);
+
+    public int getCountByHeadmasterId(Integer headmasterId);
 }
