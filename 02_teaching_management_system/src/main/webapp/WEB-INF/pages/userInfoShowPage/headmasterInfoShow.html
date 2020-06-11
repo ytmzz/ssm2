@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>headmasterInfoShow</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <form role="form" id="updateForm">
+                        <input type="hidden" name="headmasterId" id="headmasterId" />
+                        <div class="form-group">
+                            <label for="headmasterName">班主任名称</label>
+                            <input type="text" class="form-control" name="headmasterName" id="headmasterName" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label for="headmasterAge">班主任年龄</label>
+                            <input type="text" class="form-control" name="headmasterAge" id="headmasterAge" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label for="headmasterHiredate">班主任入职日期</label>
+                            <input type="date" class="form-control" name="headmasterHiredate" id="headmasterHiredate" disabled />
+                        </div>
+                        <button id="updateBtn" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> 更新</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        getHeadmasterInfo();
+
+        $("#updateBtn").click(function(){
+            location.href = "/tm_system/userInfo/JumpUpdateUserInfoPage"
+        });
+    });
+
+    function getHeadmasterInfo() {
+        $.ajax({
+            url:"/tm_system/userInfo/getHeadmasterInfo",
+            dataType:"json",
+            type:"get",
+            async:false,
+            success:function (data) {
+                if(data.result) {
+                    $("#headmasterId").val(data.info.headmasterId);
+                    $("#headmasterName").val(data.info.headmasterName);
+                    $("#headmasterAge").val(data.info.headmasterAge);
+                    var date = formatDate(data.info.headmasterHiredate);
+                    $("#headmasterHiredate").val(date);
+                }
+            }
+        });
+    }
+
+    // 转换为 yyyy-MM-dd 格式
+    function formatDate(date) {
+        var d = new Date(date);
+        var day = d.getDate();
+        var month = d.getMonth();
+        if(month+1<10){
+            month = "0"+(month+1);
+        }
+
+        if(day<10){
+            day = "0"+day;
+        }
+
+        var datew = d.getFullYear()+"-"+month+"-"+day;
+        return datew.toString();
+    }
+
+</script>
+</body>
+</html>

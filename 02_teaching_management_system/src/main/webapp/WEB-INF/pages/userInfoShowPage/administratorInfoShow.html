@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>administratorInfoShow</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <form role="form" id="updateForm">
+                        <input type="hidden" name="administratorId" id="administratorId" />
+                        <div class="form-group">
+                            <label for="administratorName">管理员名称</label>
+                            <input type="text" class="form-control" name="administratorName" id="administratorName" disabled />
+                        </div>
+                        <button id="updateBtn" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> 更新</button>
+<!--                        <button id="resetBtn" type="reset" class="btn btn-danger"><i class="glyphicon glyphicon-refresh"></i> 重置</button>-->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        getAdministratorInfo();
+
+        //getAdministratorInfo();
+
+        $("#updateBtn").click(function(){
+            location.href = "/tm_system/userInfo/JumpUpdateUserInfoPage";
+        });
+    });
+
+    function getAdministratorInfo() {
+        $.ajax({
+            url:"/tm_system/userInfo/getAdministratorInfo",
+            dataType:"json",
+            type:"get",
+            async:false,
+            success:function (data) {
+                if(data.result) {
+                    $("#administratorId").val(data.info.administratorId);
+                    $("#administratorName").val(data.info.administratorName);
+                } else {
+                    alert("信息获取失败");
+                    // if(data.status == "未完善") {
+                     //   location.href = "/tm_system/logout";
+                    // }
+                }
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>

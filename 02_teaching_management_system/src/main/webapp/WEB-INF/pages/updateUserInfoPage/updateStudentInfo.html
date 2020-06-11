@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/tm_system/css/doc.min.css">
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+    </style>
+    <title>studentInfo</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+                <div class="panel-body">
+                    <form role="form" id="updateForm">
+                        <input type="hidden" name="studentId" id="studentId" />
+                        <input type="hidden" name="classId" id="classId" />
+                        <input type="hidden" name="studentStatus" id="studentStatus" />
+                        <div class="form-group">
+                            <label for="studentName">学生名称</label>
+                            <input type="text" class="form-control" name="studentName" id="studentName" placeholder="请输入学生名称" />
+                        </div>
+                        <div class="form-group">
+                            <label for="studentAge">学生年龄</label>
+                            <input type="text" class="form-control" name="studentAge" id="studentAge" placeholder="请输入年龄" />
+                        </div>
+<!--                        <div class="form-group">-->
+<!--                            <label for="studentAge">班级选择</label>-->
+<!--                            <select name="classId" id="classId"></select>-->
+<!--                        </div>-->
+                        <button id="updateBtn" type="button" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i> 更新</button>
+                        <button id="resetBtn" type="reset" class="btn btn-danger"><i class="glyphicon glyphicon-refresh"></i> 重置</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        getStudentInfo();
+
+        $("#updateBtn").click(function(){
+            updateInfo();
+        });
+    });
+
+    function getStudentInfo() {
+        $.ajax({
+            url:"/tm_system/userInfo/getStudentInfo",
+            dataType:"json",
+            type:"get",
+            async:false,
+            success:function (data) {
+                if(data.result) {
+                    $("#studentId").val(data.info.studentId);
+                    $("#studentName").val(data.info.studentName);
+                    $("#studentAge").val(data.info.studentAge);
+                    $("#classId").val(data.info.classId);
+                    $("#studentStatus").val(data.info.studentStatus);
+                        // $.each(data.classInfos, function (index, classInfo) {
+                        //     var message = "<option value='" + classInfo.classId + "'>" + classInfo.className + "</option>";
+                        //     $("#classId").append(message);
+                        // })
+                }
+            }
+        });
+    }
+
+    function updateInfo() {
+        if(checkName() && checkAge()) {
+            $.ajax({
+                url:"/tm_system/userInfo/updateStudentInfo",
+                type:"post",
+                data:$("#updateForm").serialize(),
+                success:function(result){
+                    if(result){
+                        alert("更新成功");
+                    } else {
+                        alert("更新失败");
+                    }
+                    location.href = "/tm_system/userInfo/jumpUserInfoShowPage";
+                }
+            });
+        }
+    }
+
+    function checkName() {
+        var name = $("#studentName").val();
+        if(name == "") {
+            alert("学生名称不能为空");
+            return false;
+        }
+        return true;
+    }
+
+    function checkAge() {
+        var age = $("#studentAge").val();
+        var t = /^(?:[1-9]?\d|100)$/;
+        if(!t.test(age)) {
+            alert("学生年龄错误");
+            return false;
+        }
+        return true;
+    }
+
+</script>
+</body>
+</html>

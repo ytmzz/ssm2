@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="/tm_system/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/tm_system/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="/tm_system/css/main.css">-->
+    <style>
+        .tree li {
+            list-style-type: none;
+            cursor:pointer;
+        }
+        table tbody tr:nth-child(odd){background:#F4F4F4;}
+        /*table tbody td:nth-child(even){color:#C00;}*/
+    </style>
+    <title>headmaster</title>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="glyphicon glyphicon-th"></i> 数据列表</h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-inline" role="form" style="float:left;" id="conditionHeadmasterForm">
+                        <div class="form-group has-feedback">
+                            <div class="input-group">
+                                <div class="input-group-addon">查询条件</div>
+                                <!-- 可扩展 -->
+                                <input class="form-control has-success" type="text" name="conditionHeadmasterName" placeholder="请输入查询条件">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-warning" id="searchBtn"><i class="glyphicon glyphicon-search"></i> 查询</button>
+                    </form>
+<!--                    <button type="button" class="btn btn-danger" id="btnDel" style="float:right;margin-left:10px;"><i class=" glyphicon glyphicon-remove"></i> 删除</button>-->
+<!--                    <button type="button" class="btn btn-primary" style="float:right;" onclick="window.location.href='/tm_system/user/jumpAddPage'"><i class="glyphicon glyphicon-plus"></i> 新增</button>-->
+                    <br>
+                    <hr style="clear:both;">
+                    <div class="table-responsive">
+                        <form id="listForm">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th width="30">#</th>
+                                        <th>姓名</th>
+                                        <th>年龄</th>
+                                        <th>入职日期</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="headmasterList">
+
+                                </tbody>
+                                <tfoot>
+                                    <tr >
+                                        <td colspan="5" align="center">
+                                            <ul class="pagination">
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+<!--                          <input type="hidden" id="currentPage" />-->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/tm_system/jquery/jquery-2.1.1.min.js"></script>
+<script src="/tm_system/bootstrap/js/bootstrap.min.js"></script>
+<script src="/tm_system/script/docs.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function(){
+            if ( $(this).find("ul") ) {
+                $(this).toggleClass("tree-closed");
+                if ( $(this).hasClass("tree-closed") ) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+
+        // 首次调用，显示第1页
+        showHeadmasterList(1);
+
+        $("#searchBtn").click(function(){
+            showHeadmasterList(1);
+        });
+    });
+
+
+    function showHeadmasterList(currentPage) {
+        var condition = $("#conditionHeadmasterForm").serialize();
+        $.ajax({
+            url:"/tm_system/headmaster/getHeadmasterList",
+            type:"get",
+            // 可以扩充
+            data:$.param({"currentPage":currentPage}) + '&' + condition,
+            dataType:"json",
+            success:function(data) {
+                var list = "";
+                $.each(data.headmasters, function(index, headmaster){
+                    list += "<tr>";
+                    list += "<td>" + (index + 1) + "</td>";
+                    list += "<td>" + headmaster.headmasterName + "</td>";
+                    list += "<td>" + headmaster.headmasterAge + "</td>";
+                    list += "<td>" + new Date(headmaster.headmasterHiredate).toLocaleDateString() + "</td>";
+                    list += "</td>";
+                    list += "</tr>";
+                });
+                $("#headmasterList").html(list);
+
+                showPageList(data.pageBean);
+            }
+        });
+    }
+
+    function showPageList(pageBean) {
+        var pages = pageBean.pages;
+        var currentPage = pageBean.currentPage;
+        var count = pageBean.count;
+        var pageList = "";
+        pageList += "<li " + (currentPage-1 <= 0 ? "class='disabled'" : "") + "><a onclick='showHeadmasterList(" + (currentPage-1) + ")'>上一页</a></li>";
+        // 0 <= pages < 5
+        if(pages < 5) {
+            for(var i = 1; i <= pages; i++) {
+                pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showHeadmasterList(" + i + ")'>" + i + "</a></li>";
+            }
+        } else {
+            // 居中显示
+            if(currentPage >= 3 && currentPage <= pages-2) {
+                for(var i = currentPage - 2; i <= currentPage + 2; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showHeadmasterList(" + i + ")'>" + i + "</a></li>";
+                }
+            } else {
+                // 显示后5条
+                for(var i = pages - 4; i <= pages; i++) {
+                    pageList += "<li><a " + (currentPage == i ? "class='active'" : "") + " onclick='showHeadmasterList(" + i + ")'>" + i + "</a></li>";
+                }
+            }
+        }
+        pageList += "<li " + (currentPage+1 >= pages ? "class='disabled'" : "") + "><a onclick='showHeadmasterList(" + (currentPage+1) + ")'>下一页</a></li>";
+
+        // "<li class=\"active\"><a href=\"#\">1 <span class=\"sr-only\">(current)</span></a></li>";
+        // "<li><a href=\"#\">下一页</a></li>";
+
+        $(".pagination").html(pageList);
+    }
+</script>
+</body>
+</html>
